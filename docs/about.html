@@ -22,27 +22,18 @@ html {
   box-sizing: inherit;
 }
 
-.card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  margin: 8px;
+div.gallery {
+  margin: 50px;
+  image: url('images/shravya.JPG');
+  float: center;
+  width: 200px;
 }
 
-.about-section {
-  padding: 50px;
-  text-align: center;
-  background-color: #474e5d;
-  color: white;
-}
-
-.container {
-  padding: 0 16px;
-}
-
-.container::after, .row::after {
-  content: "";
-  clear: both;
-  display: table;
-}
+div.container{
+	position: relative;
+	text-align: center;
+	color: black;
+	}
 
 .title {
   color: grey;
@@ -57,13 +48,15 @@ html {
   <h1>About Me</h1>
 </div>
 
-<div class="card">
-  <img src="images/shravya.JPG" alt="shravya" style="width:100%">
-    <div class="container">
-      <h2>Shravya Bhaskara</h2>
-        <p class="title">Studentr</p>
-        <p>I am Shravya Bhasakara, an under-graduate Electronics and Communications Engineering student at Amrita Vishwa Vidyapeetham. I am also a Binary Exploitation enthusiast and a CTF player at Team Bi0s, ranked #1 CTF team in India, and Team Shakti (a women-only CTF team), ranked #15 in India.</p>
-        <p>I am hard working, diligent, persistent, committed and motivated and believe that with the right amount of passion and yearn for knowledge, one can can achieve great heights.</p>
+<div class="container">
+  <img src="images/shravya.JPG" alt="shravya" style="width:50%">
+</div>
+  
+<div class="gallery">
+  <h2>Shravya Bhaskara</h2>
+    <p class="title">Studentr</p>
+    <p>I am Shravya Bhasakara, an under-graduate Electronics and Communications Engineering student at Amrita Vishwa Vidyapeetham. I am also a Binary Exploitation enthusiast and a CTF player at Team Bi0s, ranked #1 CTF team in India, and Team Shakti (a women-only CTF team), ranked #15 in India.</p>
+    <p>I am hard working, diligent, persistent, committed and motivated and believe that with the right amount of passion and yearn for knowledge, one can can achieve great heights.</p>
 </div>
 
 
