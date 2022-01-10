@@ -24,7 +24,7 @@ html {
 
 .gallery {
   margin: 50px;
-  image: url('images/shravya.JPG');
+  backimage: url('images/shravya.JPG');
   float: center;
   width: 200px;
 }
@@ -46,6 +46,11 @@ html {
   color: grey;
 }
 
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  margin: 8px;
+}
+
 .button:hover {
   background-color: #555;
 }
@@ -55,11 +60,11 @@ html {
   <h1>About Me</h1>
 </div>
 
-<div class="container">
+<div class="card">
   <img src="images/shravya.JPG" alt="shravya" style="width:100%">
 </div>
   
-<div class="gallery">
+<div class="container">
   <h2>Shravya Bhaskara</h2>
     <p class="title">Studentr</p>
     <p>I am Shravya Bhasakara, an under-graduate Electronics and Communications Engineering student at Amrita Vishwa Vidyapeetham. I am also a Binary Exploitation enthusiast and a CTF player at Team Bi0s, ranked #1 CTF team in India, and Team Shakti (a women-only CTF team), ranked #15 in India.</p>
