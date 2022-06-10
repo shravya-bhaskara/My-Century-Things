@@ -49,7 +49,19 @@ div.container{
 	background-color: grey;
 	
 	}
-	
+/* Create two unequal columns that floats next to each other */
+/* Left column */
+div.leftcolumn {   
+  float: left;
+  width: 75%;
+}
+
+/* Right column */
+div.rightcolumn {
+  float: left;
+  width: 25%;
+  padding-left: 20px;
+}	
 div.centered {
   position: absolute;
   top: 70%;
@@ -90,7 +102,12 @@ section::after {
   clear: both;
 }
 
-
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+	
 a:link, a:visited {
   color: Black;
   padding: 10px;
