@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/w3css/3/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+
+<head>
+<style>
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: grey;
+}
+
+
+div.container{
+	position: relative;
+	text-align: center;
+	color: black;
+	}
+
+.text-block{
+	position: absolute;
+	top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+	color: black;
+	background-color: grey;
+	
+	}
+	
+div.centered {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+div.gallery {
+  margin: 5px;
+  background-image: url("img2.jpg");
+  float: left;
+  width: 324px;
+}
+
+div.gallery:hover {
+  border: 1px solid #777;
+}
+
+div.gallery img {
+  width: 100%;
+  height: auto;
+}
+
+div.desc {
+  padding: 15px;
+  text-align: center;
+}
+
+
+section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+a:link, a:visited {
+  color: Black;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+a:hover, a:active {
+  background-color: none;
+}
+
+h1{
+	text-align: center;
+	}
+
+</style>
+
+</head>
+
+<body>
+
+<ul>
+  <li><a class="active" href="#home">Home</a></li>
+  <li><a href="#menu">Menu</a></li>
+  <li><a href="#contact">Contact</a></li>
+  <li><a href="#about">About</a></li>
+  
+</ul>
+
+<h1> Shravya's Blog </h1>
+
+<dic class="container">
+
+	<img src="img1.jpeg" alt="home page front" width="1338" height="600">
+	<div class="centered"><q><i><b>A person who cannot decide his goal, simply cannot win.</q><br><br>&emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; ~Chanakya</b></i></div>
+</div>
+
+<p> Hi there! </p>
+
+<div class="gallery">
+	<a target="_blank" href="https://shravya-bhaskara.github.io/">
+		<img src="writeup.png" alt="writeup image" width="250" height="220">
+	</a>
+	<div class="desc"><b> CTF Writeups </b></div>
+</div>
+<div class="gallery">
+	<a target="_blank" href="link here">
+		<img src="stack.png" alt="stack image" width="250" height="250">
+	</a>
+	<div class="desc"><b> Binary Exploitation </b></div>
+</div>
+<div class="gallery">
+	<a target="_blank" href="link here">
+		<img src="poems.png" alt="literature image" width="250" height="220">
+	</a>
+	<div class="desc"><b> Poems and Short Stories </b></div>
+</div>
+<div class="gallery">
+	<a target="_blank" href="link here">
+		<img src="food.jpg" alt="food image" width="250" height="220">
+	</a>
+	<div class="desc"><b> Food </b></div>
+</div>
+</body>
+
+</html>
+
