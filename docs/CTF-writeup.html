@@ -3,32 +3,126 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-.card {
+  
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #cecece;
+}
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: grey;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+  
+.flip-card {
+  background-color: transparent;
+  width: 300px;
+  height: 300px;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-  width: 40%;
 }
 
-.card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
 }
 
-.container {
-  padding: 2px 16px;
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
+
+.flip-card-front {
+  background-color: #bbb;
+  color: black;
+}
+
+.flip-card-back {
+  background-color: #2980b9;
+  color: white;
+  transform: rotateY(180deg);
+}
+
+section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+a:link, a:visited {
+  color: Black;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+a:hover, a:active {
+  background-color: none;
+}
+  
+h1{
+  text-align: center;
+  font-family: "Lucida Console", "Courier New", monospace;
+  }
+  
 </style>
 </head>
 <body>
+ 
+ <ul>
+  <li><a class="active" href="../index.html">Home</a></li>
+  <li><a href="#menu">Menu</a></li>
+  <li><a href="#contact">Contact</a></li>
+  <li><a href="../docs/about.html">About</a></li>
+  
+</ul>
 
-<h2>Card</h2>
+<h1> CTF WRITEUPS </h1>
 
-<div class="card">
-  <img src="../images/htb.png" alt="Avatar" style="width:100%">
-  <div class="container">
-    <h4><b> Hack the Box </b></h4> 
-    <p>Architect & Engineer</p> 
+<div class="flip-card">
+  <div class="flip-card-inner">
+    <div class="flip-card-front">
+      <img src="../imgages/htb.png" alt="Avatar" style="width:300px;height:300px;">
+    </div>
+    <div class="flip-card-back">
+      <h2> Space </h2> 
+      <p>Hack The Box</p> 
+      <p><i> 2 min read </i></p>
+      <p><i> 12 June, 2022 </i></p>
+    </div>
   </div>
 </div>
 
 </body>
-</html> 
+</html>
