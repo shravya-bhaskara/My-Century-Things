@@ -42,6 +42,9 @@ li a:hover {
 }
 	
 .topnav {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
   background-color: #cecece;
 }
@@ -183,10 +186,10 @@ h1{
 
 <body>
 <div class="topnav">
-  	<a class="active" href="#home">Home</a>
-  	<a href="#menu">Menu</a>
-  	<a href="#contact">Contact</a>
-  	<a href="docs/about.html">About</a>
+	<li><a class="active" href="#home">Home</a></li>
+	<li><a href="#menu">Menu</a></li>
+	<li><a href="#contact">Contact</a></li>
+	<li><a href="docs/about.html">About</a></li>
 	<form action="/action_page.php">
       		<input type="text" placeholder="Search.." name="search">
       		<button type="submit"><i class="fa fa-search"></i></button>
@@ -238,7 +241,6 @@ h1{
                 <li class="list-inline-item"><a href="#">Terms</a></li>
                 <li class="list-inline-item"><a href="#">Privacy Policy</a></li>
             </ul>
-            <p class="copyright">Company Name © 2018</p>
         </footer>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
