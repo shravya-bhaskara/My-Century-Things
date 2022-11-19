@@ -86,12 +86,10 @@ div.centered {
   transform: translate(-50%, -50%);
 }
 div.gallery {
-
+  border: 1px solid #ccc;
   background-image: url("images/img2.jpg");
-  background-size: auto;
-  width: 45%;
   background-repeat: no-repeat;
-  float: center;
+  
 }
 
 div.gallery:hover {
@@ -114,7 +112,11 @@ section::after {
   display: table;
   clear: both;
 }
-
+.responsive {
+  padding: 0 6px;
+  float: left;
+  width: 24.99999%;
+}
 
 a:link, a:visited {
   color: Black;
@@ -181,31 +183,39 @@ h1{
 	<div class="centered"><q><i><b>A person who cannot decide his goal, simply cannot win.</q><br><br>&emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; ~Chanakya</b></i></div>
 </div>
 
+<div class="responsive">
+	<div class="gallery">
+		<a target="_blank" href="docs/CTF-writeup.html">
+			<img src="images/writeup.png" alt="writeup image" width="20%" height="18%">
+		</a>
+		<div class="desc"><b> CTF Writeups </b></div>
+	</div>
+</div>
+<div class="responsive">
+	<div class="gallery">
+		<a target="_blank" href="lhttps://shravya-bhaskara.github.io/">
+			<img src="images/stack.png" alt="stack image" width="20%" height="18%">
+		</a>
+		<div class="desc"><b> Binary Exploitation and More </b></div>
+	</div>
+</div>
+<div class="responsive">
+	<div class="gallery">
+		<a target="_blank" href="link here">
+			<img src="images/poems.png" alt="literature image" width="20%" height="18%">
+		</a>
+		<div class="desc"><b> Poems and Short Stories </b></div>
+	</div>
+</div>
+<div class="responsive">
+	<div class="gallery">
+		<a target="_blank" href=docs/food.html">
+			<img src="images/food.jpg" alt="food image" width="20%" height="18%">
+		</a>
+		<div class="desc"><b> Food </b></div>
+	</div>
+</div>
 
-<div class="gallery">
-	<a target="_blank" href="docs/CTF-writeup.html">
-		<img src="images/writeup.png" alt="writeup image" width="20%" height="18%">
-	</a>
-	<div class="desc"><b> CTF Writeups </b></div>
-</div>
-<div class="gallery">
-	<a target="_blank" href="lhttps://shravya-bhaskara.github.io/">
-		<img src="images/stack.png" alt="stack image" width="20%" height="18%">
-	</a>
-	<div class="desc"><b> Binary Exploitation and More </b></div>
-</div>
-<div class="gallery">
-	<a target="_blank" href="link here">
-		<img src="images/poems.png" alt="literature image" width="20%" height="18%">
-	</a>
-	<div class="desc"><b> Poems and Short Stories </b></div>
-</div>
-<div class="gallery">
-	<a target="_blank" href=docs/food.html">
-		<img src="images/food.jpg" alt="food image" width="20%" height="18%">
-	</a>
-	<div class="desc"><b> Food </b></div>
-</div>
 </body>
 
 </html>
