@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/w3css/3/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<style>
+  
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #cecece;
+}
+li {
+  float: left;
+}
+
+li a, .dropbtn   {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover, .dropdown:hover .dropbtn {
+  background-color: grey;
+}
+
+li.dropdown {
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: silver;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1;}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@import url('https://fonts.googleapis.com/css?family=Heebo:400,700|Open+Sans:400,700');
+
+:root {
+  --color: #3c3163;
+  --transition-time: 0.5s;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Open Sans';
+  background: #fafafa;
+}
+
+a {
+  color: inherit;
+}
+.previous {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.next {
+  background-color: grey;
+  color: white;
+}
+
+.round {
+  border-radius: 50%;
+}
+
+.cards-wrapper {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 4rem;
+  padding: 4rem;
+  margin: 0 auto;
+  width: max-content;
+}
+
+.card {
+  font-family: 'Heebo';
+  --bg-filter-opacity: 0.5;
+  background-image: linear-gradient(rgba(0,0,0,var(--bg-filter-opacity)),rgba(0,0,0,var(--bg-filter-opacity))), var(--bg-img);
+  height: 20em;
+  width: 15em;
+  font-size: 1.5em;
+  color: white;
+  border-radius: 1em;
+  padding: 1em;
+  /*margin: 2em;*/
+  display: flex;
+  align-items: flex-end;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 0 5em -1em black;
+  transition: all, var(--transition-time);
+  position: relative;
+  overflow: hidden;
+  border: 10px solid #ccc;
+  text-decoration: none;
+}
+
+.card:hover {
+  transform: rotate(0);
+}
+
+.card h1 {
+  margin: 0;
+  font-size: 1.5em;
+  line-height: 1.2em;
+}
+
+.card p {
+  font-size: 0.75em;
+  font-family: 'Open Sans';
+  margin-top: 0.5em;
+  line-height: 2em;
+}
+
+.card .tags {
+  display: flex;
+}
+
+.card .tags .tag {
+  font-size: 0.75em;
+  background: rgba(255,255,255,0.5);
+  border-radius: 0.3rem;
+  padding: 0 0.5em;
+  margin-right: 0.5em;
+  line-height: 1.5em;
+  transition: all, var(--transition-time);
+}
+
+.card:hover .tags .tag {
+  background: var(--color);
+  color: white;
+}
+
+.card .date {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.75em;
+  padding: 1em;
+  line-height: 1em;
+  opacity: .8;
+  color: White;
+}
+
+.card:before, .card:after {
+  content: '';
+  transform: scale(0);
+  transform-origin: top left;
+  border-radius: 50%;
+  position: absolute;
+  left: -50%;
+  top: -50%;
+  z-index: -5;
+  transition: all, var(--transition-time);
+  transition-timing-function: ease-in-out;
+}
+
+.card:before {
+  background: #ddd;
+  width: 250%;
+  height: 250%;
+}
+
+.card:after {
+  background: white;
+  width: 200%;
+  height: 200%;
+}
+
+.card:hover {
+  color: var(--color);
+}
+
+.card:hover:before, .card:hover:after {
+  transform: scale(1);
+}
+
+.card-grid-space .num {
+  font-size: 3em;
+  margin-bottom: 1.2rem;
+  margin-left: 1rem;
+}
+
+.info {
+  font-size: 1.2em;
+  display: flex;
+  padding: 1em 3em;
+  height: 3em;
+}
+
+.info img {
+  height: 3em;
+  margin-right: 0.5em;
+}
+
+.info h1 {
+  font-size: 1em;
+  font-weight: normal;
+}
+
+/* MEDIA QUERIES */
+@media screen and (max-width: 1285px) {
+  .cards-wrapper {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .cards-wrapper {
+    grid-template-columns: 1fr;
+  }
+  .info {
+    justify-content: center;
+  }
+  .card-grid-space .num {
+    /margin-left: 0;
+    /text-align: center;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .cards-wrapper {
+    padding: 4rem 2rem;
+  }
+  .card {
+    max-width: calc(100vw - 4rem);
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .info {
+    display: block;
+    text-align: center;
+  }
+  .info h1 {
+    margin: 0;
+  }
+}
+section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+a:link, a:visited {
+  color: Black;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+a:hover, a:active {
+  background-color: none;
+}
+  
+h1{
+  text-align: center;
+  font-family: "Lucida Console", "Courier New", monospace;
+  }
+
+  
+</style>
+</head>
+<body>
+ 
+ <ul>
+  <li><a class="active" href="../index.html">Home</a></li>
+  <li class="dropdown">
+  	<a href="javascript:void(0)" class="droptn">Menu</a>
+  	<div class="dropdown-content">
+		<a href="../docs/CTF-writeup.html">CTF Writeups</a>
+		<a href="#binaryexploitation">Binary Exploitation</a>
+		<a href="#poemsandstories">Poems and Short Stories</a>
+		<a href="#food">Food</a>
+	</div>
+  </li>
+  <li><a href="#contact">Contact</a></li>
+  <li><a href="../docs/about.html">About</a></li>
+  
+</ul>
+
+<h1> CTF WRITEUPS </h1>
+
+
+<section class="cards-wrapper">
+    <div class="card-grid-space">
+    <div class="num">01</div>
+    <a class="card" href="CTF-writeup.html" style="--bg-img: url('../images/Hackthebox.png')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>bad_grades</h2>
+      <p><i> Hack the box </i></p>
+      <p><i> 2 min read </i></p>
+      <br></br>
+        <div class="date">10 Jun 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card-grid-space">
+    <div class="num">02</div>
+    <a class="card" href="https://gist.github.com/shravya-bhaskara/50a365d5b9c83ac9da470a5e814a1aaf" style="--bg-img: url('../images/tamuctf.jpg')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>Void</h2>
+      <p><i> TAMUCTF'22 </i></p>
+      <p><i> 2 min read </i></p>
+      <br></br>
+        <div class="date">22 Apr 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card-grid-space">
+    <div class="num">03</div>
+    <a class="card" href="https://gist.github.com/shravya-bhaskara/824a4b19edd1f92ee3aa665baa1fffd2" style="--bg-img: url('../images/cyber-hacker-image.jpg')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>CTF-Sim</h2>
+      <p><i> TAMUCTF'22 </i></p>
+      <p><i> 2 min read </i></p>
+      <br></br>
+        <div class="date">22 Apr 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- https://images.unsplash.com/photo-1520839090488-4a6c211e2f94?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=38951b8650067840307cba514b554ba5&auto=format&fit=crop&w=1350&q=80 -->
+</section>
+<section class="cards-wrapper">
+  <div class="card-grid-space">
+    <div class="num">04</div>
+    <a class="card" href="https://gist.github.com/shravya-bhaskara/a13e651007bb889948630ffd1048c3b9" style="--bg-img: url('../images/hacker.jpg')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>Viserion's Call</h2>
+      <p><i> INCTF'21 </i></p>
+      <p><i> 2 min read </i></p>
+      <br></br>
+        <div class="date">31 Jan 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card-grid-space">
+    <div class="num">05</div>
+    <a class="card" href="https://gist.github.com/shravya-bhaskara/786d2348d44ba6d14060c6369b7b8ef7" style="--bg-img: url('../images/hacker-1.jpeg')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>The Bet</h2>
+      <p><i> INCTF'21 </i></p>
+      <p><i> 2 min read </i></p>
+      <br></br>
+        <div class="date">24 Jan 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card-grid-space">
+    <div class="num">06</div>
+    <a class="card" href="https://gist.github.com/shravya-bhaskara/2f35e5241bff893cfeb14e66bab1146" style="--bg-img: url('../images/Hacked.jpg')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>Leaky Pipes</h2>
+      <p><i> INCTFjr'21 </i></p>
+      <p><i> 5 min read </i></p>
+      <br></br>
+        <div class="date">24 Jan 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <!-- https://images.unsplash.com/photo-1520839090488-4a6c211e2f94?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=38951b8650067840307cba514b554ba5&auto=format&fit=crop&w=1350&q=80 -->
+</section>
+
+<section class="cards-wrapper">
+  <div class="card-grid-space">
+    <div class="num">07</div>
+    <a class="card" href="https://gist.github.com/shravya-bhaskara/f03a7500e65f8a1ac0efd10205b075f8" style="--bg-img: url('../images/hacking-1.jpg')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>pack_alpha</h2>
+      <p><i> INCTF'21 </i></p>
+      <p><i> 2 min read </i></p>
+      <br></br>
+        <div class="date">24 Jan 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card-grid-space">
+    <div class="num">08</div>
+    <a class="card" href="https://gist.github.com/shravya-bhaskara/337194811355673e626a4336e13517bf" style="--bg-img: url('../images/hacking-2.jpg')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>bad race</h2>
+      <p><i> INCTFjr'21 </i></p>
+      <p><i> 3 min read </i></p>
+      <br></br>
+        <div class="date">24 Jan 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card-grid-space">
+    <div class="num">09</div>
+    <a class="card" href="https://gist.github.com/shravya-bhaskara/3732dab7ddce2a7531b11ed2d66f69e3" style="--bg-img: url('../images/hacking-3.jpg')">
+      <div>
+      <br></br>
+      <br></br>
+      <h2>Buffer Up</h2>
+      <p><i> INCTFjr'21 </i></p>
+      <p><i> 2 min read </i></p>
+      <br></br>
+        <div class="date">24 Jan 2022</div>
+        <div class="tags">
+          <div class="tag">PWN</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <!-- https://images.unsplash.com/photo-1520839090488-4a6c211e2f94?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=38951b8650067840307cba514b554ba5&auto=format&fit=crop&w=1350&q=80 -->
+</section>
+</body>
+</html>
