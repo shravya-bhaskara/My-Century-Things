@@ -1,254 +1,50 @@
 <!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>About Me</title>
 
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/w3css/3/w3.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
-<script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+			<!-- Custom styles for this template go here -->
+				<link rel="stylesheet" href="css/about_styles.css">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #cecece;
-}
-
-li {
-  float: left;
-}
-
-li a {
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-}
-
-li a:hover {
-  background-color: grey;
-}
-
-li a:hover {
-  background-color: grey;
-}
-
-
-div.container{
-	position: relative;
-	text-align: center;
-	color: black;
-	}
-
-.text-block{
-	position: absolute;
-	top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-	color: black;
-	background-color: grey;
-	
-	}
-	
-div.centered {
-  position: absolute;
-  top: 70%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-div.gallery {
-  margin: 5px;
-  background-image: url('../images/img2.jpg');
-  float: left;
-  width: 324px;
-}
-
-img{
-display: block;
-margin-left: auto;
-margin-right: auto;
-}
-
-div.gallery:hover {
-  border: 1px solid #777;
-}
-
-div.gallery img {
-  width: 100%;
-  height: auto;
-}
-
-div.desc {
-  padding: 15px;
-  text-align: center;
-}
-
-
-section::after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-
-a:link, a:visited {
-  color: Black;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-}
-
-a:hover, a:active {
-  background-color: none;
-}
-
-h1{
-	text-align: center;
-	}
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-}
-
-html {
-  box-sizing: border-box;
-}
-
-*, *:before, *:after {
-  box-sizing: inherit;
-}
-	
-.center {
-  display: block;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: auto;
-  margin-right: auto;
-  width: 70%;
-}
-	
-.container {
-  position: relative;
-  width: 50%;
-}
-
-.image {
-  opacity: 1;
-  display: block;
-  width: 100%;
-  height: auto;
-  transition: .5s ease;
-  backface-visibility: hidden;
-}
-
-.middle {
-  transition: .5s ease;
-  opacity: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%)
-}
-
-.container:hover .image {
-  opacity: 0.3;
-}
-
-.container:hover .middle {
-  opacity: 1;
-}
-
-.text {
-  background-color: #4CAF50;
-  color: white;
-  font-size: 16px;
-  padding: 16px 32px;
-}
-	
-.title {
-  color: grey;
-}
-
-.button:hover {
-  background-color: #555;
-}
-.fa {
-  padding: 20px;
-  font-size: 30px;
-  width: 125px;
-  text-align: center;
-  text-decoration: none;
-  margin: 15px 2px;
-}
-
-.fa:hover {
-    opacity: 0.7;
-}
-
-.fa-github {
-  background: #4d4e4b;
-  color: white;
-}
-
-.fa-linkedin {
-  background: #007bb5;
-  color: white;
-}
-	
-.fa-twitter {
-  background: #55ACEE;
-  color: white;
-}
-
-img{
-  margin-top: 10px;
-  margin-right: 250px;
-  margin-left: 200px;
-  border: 1px solid black;
-}
-h2{
-  margin-top: 10px;
-  margin-right: 200px;
-  margin-left: 100px;
-}
-p{
-  margin-top: 10px;
-  margin-right: 200px;
-  margin-left: 100px;
-}
-</style>
-<ul>
-  <li><a class="active" href="../index.html">Home</a></li>
-  <li><a href="#menu">Menu</a></li>
-  <li><a href="#contact">Contact</a></li>
-  <li><a href="../docs/about.html">About</a></li>
-  
-</ul>
-	
-<div class="about-section">
-  <h1>About Me</h1>
-</div>
-	
-<div class="container">
-  <img src="../images/shravya.JPG" alt="Avatar" class="image" style="width: 100% height:10%">
-  <div class="middle">
-	  <div class="text"> Shravya Bhaskara </div>
-</div>
-	
-  <p class="title" style="float:center">Student</p>
-  <p>I am Shravya Bhasakara, an under-graduate Electronics and Communications Engineering student at Amrita Vishwa Vidyapeetham. I am also a Binary Exploitation enthusiast and a CTF player at Team Bi0s, ranked #1 CTF team in India, and Team Shakti (a women-only CTF team), ranked #15 in India.</p>
-  <p>I am hard working, diligent, persistent, committed and motivated and believe that with the right amount of passion and yearn for knowledge, one can can achieve great heights.</p>
-  <a href="https://github.com/shravya-bhaskara" class="fa fa-github" style="float:center"></a>
-  <a href="https://www.linkedin.com/in/shravya-bhaskara-56277a1b2?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BvxE8HWt3R%2F2o%2BKD2du2Hcg%3D%3D" class="fa fa-linkedin" style="float:center"></a>
-  <a href="https://twitter.com/BhaskaraShravya" class="fa fa-twitter" style="float:center"></a>
-</div> 
-
+			<!--[if lt IE 9]>
+			<script src="dist/html5shiv.js"></script>
+			<![endif]-->			
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>About Me</h1>
+			</div><!-- end header-->
+			<div class="image">
+				<img src="img/profile.jpg">	
+			</div><!-- end image-->
+			<div class="intro column">
+				<h2>Introduction</h2>
+				<p>
+					I am a 28 year old finnish web developer with science and art background. I love to spend my free time renovating my home, playing and going on long walks with my dog. I love scifi and fantasy literature and
+					series. 
+				</p>
+			</div><!-- end intro-->
+			<div class="skills column">
+				<h3>My Skills</h3>
+				<ul id="skill-list">
+					<li>Web Development</li>
+					<li>Design process</li>
+					<li>Teamwork</li>						
+					<li>Analytical skills</li>
+				</ul><!--end skill-list-->
+			</div><!-- end skills-->
+			<div class="main-text">
+				<h3>More About Me</h3>
+				<p>
+					I have studied chemistry but have always been interested in web development. I was 10 years old when I made my first web page with HTML and CSS. While I was studying in the university I took computer science  as my minor subject and was introduced to programming. During my studies I was an active member in student associations and became responsible for all kinds of tasks and projects including being a web master. That and my previous interest in web development created a spark to turn my hobby into a career. I took my first steps towards my new career in January 2017.
+				</p>
+				<p>
+					I'm highly energetic and motivated person and I love to work as a member or a leader of a team. I especially enjoy working with changing projects and taking them forward with rapid pace but high precision. I am talkative and sociable but also known for getting "in the zone" while concentrating on detailed work like programming or designing.
+				</p>
+			</div><!-- end main-text-->
+		</div><!--end container-->
+	</body>
 </html>
-
