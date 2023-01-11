@@ -138,7 +138,43 @@ void: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, Bu
 	</blockquote>
 
 	
-</div>
 
+
+<p> As we can see, it is a 64-bit statically linked binary and only NX is enabled! So we'll need to figure out a way to inject shellcode and execute, if at all we use that approach. We will see how that can be done soon enough!
+	For now let's analyze the binary further! </p>
+
+	<h2> Analysis </h2>
+	<blockquote>
+		<code>```
+			gef➤  info functions
+All defined functions:
+
+Non-debugging symbols:
+0x0000000000401000  main
+0x0000000000401020  _start
+gef➤  disas main
+Dump of assembler code for function main:
+   0x0000000000401000 <+0>:	mov    rax,0x0
+   0x0000000000401007 <+7>:	mov    rdi,0x0
+   0x000000000040100e <+14>:	mov    rsi,rsp
+   0x0000000000401011 <+17>:	mov    rdx,0x7d0
+   0x0000000000401018 <+24>:	syscall 
+   0x000000000040101a <+26>:	ret    
+End of assembler dump.
+gef➤  disas _start
+Dump of assembler code for function _start:
+   0x0000000000401020 <+0>:	xor    eax,eax
+   0x0000000000401022 <+2>:	call   0x401000 <main>
+   0x0000000000401027 <+7>:	mov    rax,0x3c
+   0x000000000040102e <+14>:	mov    rdi,0x0
+   0x0000000000401035 <+21>:	syscall 
+   0x0000000000401037 <+23>:	ret    
+End of assembler dump.
+gef➤ 
+			```
+	</code>
+</blockquote>
+
+</div>			
 </body>
 </html>
