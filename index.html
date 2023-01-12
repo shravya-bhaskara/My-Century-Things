@@ -84,6 +84,41 @@ div.centered {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+div.gallery {
+  border: 1px solid #ccc;
+  background-image: url("images/img2.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+div.gallery:hover {
+  border: 1px solid #777;
+}
+
+div.gallery img {
+  width: 40%;
+  height: 20%;
+}
+
+div.desc {
+  padding: 15px;
+  text-align: center;
+}
+
+
+section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.responsive {
+  padding: 6px 6px;
+  left: 50%;
+  top: 50%;
+  float: left;
+  width: 23%;
+  height: 20%;
+}
 @import 'https://fonts.googleapis.com/css?family=Lily+Script+One';
 body {
   background: #eee;
