@@ -84,40 +84,68 @@ div.centered {
   left: 50%;
   transform: translate(-50%, -50%);
 }
-div.gallery {
-  border: 1px solid #ccc;
+@import 'https://fonts.googleapis.com/css?family=Lily+Script+One';
+body {
+  background: #eee;
+  font-family: 'Lily Script One';
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  margin: -150px;
+  float: left;
+  perspective: 500px;
+}
+
+.content {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+
+  transition: transform 1s;
+  transform-style: preserve-3d;
+}
+
+.card:hover .content {
+  transform: rotateY( 180deg ) ;
+  transition: transform 0.5s;
+}
+
+.front,
+.back {
+  position: absolute;
+  height: 100%;
+  width: 100%;
   background-image: url("images/img2.jpg");
   background-repeat: no-repeat;
   background-size: 100% 100%;
-}
-
-div.gallery:hover {
-  border: 1px solid #777;
-}
-
-div.gallery img {
-  width: 40%;
-  height: 20%;
-}
-
-div.desc {
-  padding: 15px;
+  line-height: 300px;
+  color: #03446A;
   text-align: center;
+  font-size: 60px;
+  border-radius: 5px;
+  backface-visibility: hidden;
 }
 
-
+.back {
+  background: #03446A;
+  color: white;
+  transform: rotateY( 180deg );
+}
 section::after {
   content: "";
   display: table;
   clear: both;
 }
-.responsive {
-  padding: 6px 6px;
-  left: 100%;
-  top: 100%;
-  float: left;
-  width: 23%;
-  height: 20%;
+	
+div.desc {
+  padding: 15px;
+  text-align: center;
 }
 
 a:link, a:visited {
@@ -206,13 +234,18 @@ h1{
 	<div class="centered" style="font-size:1vw;"><q><i><b>A person who cannot decide his goal, simply cannot win.</q><br><br>&emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; ~Chanakya</b></i></div>
 </div>
 
-<div class="responsive">
-	<div class="gallery">
-	 	<a target="_blank" href="docs/CTF-writeup.html">
-			<img src="images/writeup.png" alt="writeup image" width="30%" height="25%">
-		</a>
-		<div class="desc" style="font-size:1.2vw;"><b> CTF Writeups </b></div>
-	</div>
+<div class="card">
+  <div class="content">
+    <div class="front">
+      <img src="images/stack.png" alt="stack image" width="30%" height="25%">
+    </div>
+    <div class="back">
+      <a target="_blank" href="docs/CTF-writeup.md">
+			<img src="images/stack.png" alt="stack image" width="30%" height="25%">
+      </a>
+	    <div class="desc"><b> CTF Writeups </b></div>
+    </div>
+  </div>
 </div>
 <div class="responsive">
 	<div class="gallery">
