@@ -114,7 +114,7 @@ h2{
  </ul>
 <p>     </p>
 <p>     </p>
-<img src="../../images/arm.jpeg" width="350" height="263" alt="void">
+<img src="../../images/arm.jpeg" width="350" height="263" alt="arm">
 <p>     </p>
 <div class="writeup">
 	<h1> Compiling and running arm binaries on x86/ x86_64 bit Debian Linux. </h1>
@@ -141,50 +141,50 @@ h2{
 In this post I have used a qemu setup environment in order to compile and run my arm binaries. </p>
 
      <p> Firstly, let's get some things installed. Some of the packages you need to install are: <br>
-       1. <code>sudo apt-get install gcc-arm-linux-gnueabi </cod>
-       2. <code> sudo apt-get install gcc-arm-linux-gnueabihf </code>
+       1. <code>sudo apt-get install gcc-arm-linux-gnueabi </cod><br>
+       2. <code> sudo apt-get install gcc-arm-linux-gnueabihf </code><br>
        
-     Aarch64 on x86_64 bit with qume:
+     Aarch64 on x86_64 bit with qemu:<br>
        <code> apt-get install -qy qemu-user libc6-arm64-cross gdb-multiarch </code></p>
      
 
 	<h2> Cross-compilation</h2>
-  <p>The cross-compilation isn't very different from the regular gcc compilation. Look at the commands below to compile the above <code>helloworld.c</code> file into an ARM binary:
-     1. 32-bit arm binary compilation:
-     <blockquote><code>arm-linux-gnueabi-gcc helloworld.c -o helloworld_arm</code></blockquote>
-     2. 64-bit arm binary compilation:
-     <blockquote><code>aarch64-linux-gnu-gcc helloworld.c -o helloworld_arm64</code></blockquote>
+  <p>The cross-compilation isn't very different from the regular gcc compilation. Look at the commands below to compile the above <code>helloworld.c</code> file into an ARM binary:<br>
+     1. 32-bit arm binary compilation:<br>
+     <blockquote><code>arm-linux-gnueabi-gcc helloworld.c -o helloworld_arm</code></blockquote><br>
+     2. 64-bit arm binary compilation:<br>
+     <blockquote><code>aarch64-linux-gnu-gcc helloworld.c -o helloworld_arm64</code></blockquote><br>
      </p>
 
-  <p>You may use the <code>file</code> command to check if the binary is really an arm binary or not. </p>
-<p> To run the arm binaries: 
-  1. Using qemu for aarch64 binary:
-  <blockquote><code>qemu-aarch64 -L /usr/aarch64-linux-gnu helloworld_arm</code></blockquote>
-  2. Using qemu for arm-32 bit binary:
-  <blockquote><code>qemu-arm -L /usr/arm-linux-gnu</code></blockquote>
+  <p>You may use the <code>`file`</code> command to check if the binary is really an arm binary or not. </p>
+<p> To run the arm binaries: <br>
+  1. Using qemu for aarch64 binary:<br>
+  <blockquote><code>qemu-aarch64 -L /usr/aarch64-linux-gnu helloworld_arm</code></blockquote><br>
+  2. Using qemu for arm-32 bit binary:<br>
+  <blockquote><code>qemu-arm -L /usr/arm-linux-gnu</code></blockquote><br>
   </p>
 
-  <p>To debug in gdb use the commands:
-  In one termnial run: 
-  <blockquote><code>qemu-aarch64 -g 5000 -L /usr/aarch64-linux-gnu helloworld_arm64</code></blockquote>
-  Do not fret if you don't see any output after this. It is simply waiting for a GDB connection. So, in another terminal run this: 
-  <blockuqote><code>
+  <p>To debug in gdb use the commands:<br>
+  In one termnial run: <br>
+  <blockquote><code>qemu-aarch64 -g 5000 -L /usr/aarch64-linux-gnu helloworld_arm64</code></blockquote><br>
+  Do not fret if you don't see any output after this. It is simply waiting for a GDB connection. So, in another terminal run this: <br>
+  <blockuqote><code><br>
     $ gdb-multiarch<br>
     pwndbg> file helloworld_arm64<br>
     pwndbg> set sysroot /user/aarch64-linux-gnu<br>
     pwndbg> target remote localhost:5000<br>
-    </code></blockquote>
+    </code></blockquote><br>
   </p>  
-  <p> To debug a 32-bit binary: 
-    In one terminal run:
-    <blockquote><code>qemu-arm -g 3000 -L /usr/arm-linux-gnu helloworld_arm</code></blockquote>
-  In another termnial run:
-    <blockuqote><code>
+  <p> To debug a 32-bit binary: <br>
+    In one terminal run:<br>
+    <blockquote><code>qemu-arm -g 3000 -L /usr/arm-linux-gnu helloworld_arm</code></blockquote><br>
+  In another termnial run:<br>
+    <blockuqote><code><br>
     $ gdb-multiarch<br>
     pwndbg> file helloworld_arm<br>
     pwndbg> set sysroot /user/arm-linux-gnu<br>
     pwndbg> target remote localhost:3000<br>
-    </code></blockquote>
+    </code></blockquote><br>
   </p>
 
 </div>			
