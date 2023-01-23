@@ -115,25 +115,9 @@ section::after {
   padding: 20px 20px;
   left: 50%;
   top: 50%;
-  float: left;
+  float: center;
   width: 23%;
   height: 20%;
-}
-@import 'https://fonts.googleapis.com/css?family=Lily+Script+One';
-body {
-  background: #eee;
-  font-family: 'Lily Script One';
-}
-
-.card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 300px;
-  height: 300px;
-  margin: -150px;
-  float: left;
-  perspective: 500px;
 }
 
 .content {
@@ -146,32 +130,6 @@ body {
   transform-style: preserve-3d;
 }
 
-.card:hover .content {
-  transform: rotateY( 180deg ) ;
-  transition: transform 0.5s;
-}
-
-.front,
-.back {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-image: url("images/img2.jpg");
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  line-height: 300px;
-  color: #03446A;
-  text-align: center;
-  font-size: 60px;
-  border-radius: 5px;
-  backface-visibility: hidden;
-}
-
-.back {
-  background: #03446A;
-  color: white;
-  transform: rotateY( 180deg );
-}
 section::after {
   content: "";
   display: table;
@@ -261,7 +219,7 @@ h1{
   </li>
 </ul>
 
-<h1> SHRAVYA'S BLOG </h1>
+<h1 style="font-size:1vw;"> SHRAVYA'S BLOG </h1>
 
 <div class="container">
 
