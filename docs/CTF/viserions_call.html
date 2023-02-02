@@ -138,7 +138,7 @@ RELRO     : FULL<br>
 	</blockquote>
 
 	<h2> Analysis </h2>
-
+We see that in main, we are supposed to enter our name and password. They are then passed as arguments to <code>`password_check()`</code>. In password_ check, one can easily notice that the password string is <code>`s3cur3_p4ssw0rd`</code>. We also see that if the password is correct, a random value is being returned by the function. Let us not further look into the decompilation of main.
 	
 	<blockquote>
 		<code>```<br>
