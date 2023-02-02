@@ -117,30 +117,29 @@ h2{
 <p>     </p>
 <div class="writeup">
 	<h1> Void</h1>
-	<h2> Points: 272</h2>
-		<p> This was one of the good challenges that I tried during the CTF. It was based on a technique called SROP (Sigreturn Oriented Programming). </p>
+	<p> Points: 400</p>
+	<p> Challenge Author: <a href="https://twitter.com/BhaskaraShravya">d1g174l_f0rtr355</a></p><br>
+	<p> A hard challenge I made for InCTF Nationals Finals round. The protections given on the binary were full, and there was no possibility for leaks. It is based on the concept of making use of a vsyscall to jump to backdoor. Before I proceed, I would just like to state that this challenge does not require any sort of brute approach. </p>
 
-   <p>The purpose of this challenge was to defeat ASLR and so the binary as such consisted of only two functions - <code> main </code> and <code> _start </code> both written in simple assembly making use of syscalls. 
-      I'll take you through challenge and how I solved it! </p>
+
 	<h2> Preliminary Analysis: </h2>
    <blockquote><code>
 void: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, BuildID[sha1]=7fd635b160836aff1b92af6f203e3b1f160f54cc, not stripped <br><br>
       </code>
-	<code>
-		Canary                        : ✘ <br>
-		NX                            : ✓ <br>
-		PIE                           : ✘ <br>
-		Fortify                       : ✘ <br>
-		RelRO                         : ✘ <br>
-		gef➤
+	<code><br>
+gdb-peda$ checksec<br>
+CANARY    : ENABLED<br>
+FORTIFY   : disabled<br>
+NX        : ENABLED<br>
+PIE       : ENABLED<br>
+RELRO     : FULL<br>
+<br>
 	   </code>
 	</blockquote>
 
-
-<p> As we can see, it is a 64-bit statically linked binary and only NX is enabled! So we'll need to figure out a way to inject shellcode and execute, if at all we use that approach. We will see how that can be done soon enough!
-	For now let's analyze the binary further! </p>
-
 	<h2> Analysis </h2>
+
+	
 	<blockquote>
 		<code>```<br>
 			gef➤  info functions<br>
