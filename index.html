@@ -135,7 +135,14 @@ body {
 }
 
 .scene {
-  margin: auto;
+  display: flex;
+  flex-direction: row;          /* force same line */
+  justify-content: center;      /* center the cards */
+  gap: 30px;                    /* space between cards */
+  margin: 50px auto;
+  padding: 0 20px;
+  width: 100%;
+  max-width: 1200px;            /* enough room for 4 cards */
 }
 
 .card {
@@ -146,6 +153,8 @@ body {
   cursor: pointer;
   transition: transform 1s ease-in-out;
   transform-style: preserve-3d;
+  flex-shrink: 0;               /* VERY IMPORTANT */
+
 }
 
 .card:hover {
@@ -201,6 +210,11 @@ h1{
 	text-align: center;
 	font-family: "Lucida Console", "Courier New", monospace;
 	}
+@media (max-width: 900px) {
+  .scene {
+    flex-wrap: wrap;            /* stack on small screens */
+  }
+}
 @media only screen and (max-width:800px) {
   /* For tablets: */
   .u1 {
