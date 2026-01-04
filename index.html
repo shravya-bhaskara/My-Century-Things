@@ -71,18 +71,18 @@ div.container{
   background-repeat: no-repeat;
 	}
 
-.text-block{
+.text-block {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: black;
-  padding: 20px 30px;
+  background: rgba(206, 206, 206, 0.75);
+  padding: 20px;
   text-align: center;
-  max-width: 80%;
-  font-size: 1.2rem;
-	
-	}
+  max-width: 90%;
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+}
 	
 div.centered {
   top: 80%;
@@ -136,7 +136,7 @@ body {
 }
 
 .scene {
-  margin: 50px auto;
+  margin: auto;
 }
 
 .card {
@@ -252,8 +252,13 @@ h1{
 <h1 style="font-size:3vw;"> SHRAVYA'S BLOG </h1>
 
 <div class="container">
-
-	<div class="text-block" style="font-size:1vw;"><q><i><b>A person who cannot decide his goal, simply cannot win.</q><br><br>&emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; ~Chanakya</b></i></div>
+<div class="text-block">
+  <q><i><b>
+    A person who cannot decide his goal, simply cannot win.
+  </b></i></q>
+  <br><br>
+  <span>~ Chanakya</span>
+</div>
 </div>
 	<p><br></p>
 
