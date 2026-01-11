@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/w3css/3/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 <style>
   
@@ -98,32 +98,35 @@ a {
 
 .cards-wrapper {
   display: grid;
-  justify-content: center;
-  align-items: center;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-gap: 4rem;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 4rem;
   padding: 4rem;
+  max-width: 1200px;
   margin: 0 auto;
-  width: max-content;
 }
 
 .card {
-  font-family: 'Heebo';
+font-family: 'Heebo';
   --bg-filter-opacity: 0.5;
-  background-image: linear-gradient(rgba(0,0,0,var(--bg-filter-opacity)),rgba(0,0,0,var(--bg-filter-opacity))), var(--bg-img);
-  height: 20em;
-  width: 15em;
-  font-size: 1.5em;
+  background-image: 
+    linear-gradient(
+      rgba(0,0,0,var(--bg-filter-opacity)),
+      rgba(0,0,0,var(--bg-filter-opacity))
+    ),
+    var(--bg-img);
+
+  height: 22rem;
+  width: 100%;            /* KEY CHANGE */
+  font-size: 1.2rem;      /* scale text better */
   color: white;
   border-radius: 1em;
   padding: 1em;
-  /*margin: 2em;*/
   display: flex;
   align-items: flex-end;
   background-size: cover;
   background-position: center;
   box-shadow: 0 0 5em -1em black;
-  transition: all, var(--transition-time);
+  transition: all var(--transition-time);
   position: relative;
   overflow: hidden;
   border: 10px solid #ccc;
@@ -305,8 +308,7 @@ h1{
   <li class="dropdown">
   	<a href="javascript:void(0)" class="droptn">Menu</a>
   	<div class="dropdown-content">
-		<a href="../docs/CTF-writeup.html">CTF Writeups</a>
-		<a href="../docs/exploitation_and_more.html">Binary Exploitation</a>
+		<a href="../docs/Technology.html">Technology and More</a>
 		<a href="../docs/poems.html">Poems and Short Stories</a>
 		<a href="../docs/food.html">Food</a>
 	</div>
